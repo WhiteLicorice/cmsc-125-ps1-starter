@@ -1,0 +1,2 @@
+exit 65
+stderr ps1: workload has no workers

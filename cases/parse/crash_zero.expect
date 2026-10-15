@@ -1,0 +1,2 @@
+exit 65
+stderr ps1: workload line 1: crash must be from 1 to 4

@@ -1,0 +1,2 @@
+exit 65
+stderr ps1: workload line 1: burst must be at least 1

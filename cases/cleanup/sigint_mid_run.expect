@@ -1,0 +1,4 @@
+exit 130
+stderr ps1: interrupted after
+interrupt SIGINT
+partial

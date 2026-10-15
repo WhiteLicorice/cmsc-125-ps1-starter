@@ -1,0 +1,2 @@
+exit 65
+stderr ps1: workload line 1: arrival must be 0 or greater

@@ -1,0 +1,40 @@
+name: ps1-checks
+on: [push]
+
+# This workflow is red before the work is done, and that is the correct
+# starting state. The starter ships four unimplemented files, so it passes 8 of
+# the 57 published cases and exits 1. The passing 8 test the given command-line
+# parser, not the four files a pair writes.
+#
+# The workflow must be green on the commit you submit. That commit holds one
+# author's work and one partner's work, and the run belongs to both.
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # Ubuntu needs the compiler and make. The macOS runner carries both, and
+      # its Python 3 comes with the Xcode command line tools.
+      - name: Install the build tools (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y build-essential make
+
+      - name: Report the tools this run grades with
+        run: |
+          cc --version
+          make --version
+          python3 --version
+        shell: bash
+
+      - run: chmod +x run check.sh
+
+      # check.sh is the complete public automated check. It builds the project
+      # and runs the published corpus. The runner also times every slice and
+      # confirms that no worker outlives the controller.
+      - run: ./check.sh

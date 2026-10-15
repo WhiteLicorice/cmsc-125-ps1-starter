@@ -1,0 +1,2 @@
+exit 65
+stderr ps1: workload line 1: 'this_name_is_far_too_long' is not a worker name

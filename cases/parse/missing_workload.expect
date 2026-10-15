@@ -1,0 +1,3 @@
+exit 65
+stderr ps1: cannot open workload 'cases/parse/absent_workload.work'
+path cases/parse/absent_workload.work

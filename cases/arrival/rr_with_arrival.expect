@@ -1,0 +1,2 @@
+exit 0
+schedule A@0 A@2 B@4 A@6

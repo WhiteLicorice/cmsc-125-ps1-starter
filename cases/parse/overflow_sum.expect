@@ -1,0 +1,6 @@
+# The two bursts sum past what a `long` holds, so the total is not a
+# representable number. The parser must refuse on the running total, so only
+# the message's two fixed halves are stated here.
+exit 65
+stderr ps1: the work clock would run
+stderr more than 2048

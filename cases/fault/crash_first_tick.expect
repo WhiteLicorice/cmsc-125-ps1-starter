@@ -1,0 +1,3 @@
+exit 70
+stderr ps1: worker 'A' failed after 1 of 4 ticks (exit 9)
+partial

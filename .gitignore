@@ -1,0 +1,6 @@
+# Build output, generated traces, and the runner's cache. Nothing here
+# belongs in a commit.
+build/
+traces/
+__pycache__/
+*.o

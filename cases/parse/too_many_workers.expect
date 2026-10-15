@@ -1,0 +1,2 @@
+exit 65
+stderr ps1: workload line 17: more than 16 workers

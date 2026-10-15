@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# run: run one workload through the starter's binary.
+#
+# The public corpus calls this file, so the checks and a student type the same
+# command.
+#
+#   ./run --policy rr --quantum 5 cases/normal/rr_two.work
+binary="build/cmsc-125-ps1"
+if [[ -f "$binary.exe" ]]; then
+  binary="$binary.exe"
+fi
+exec "$binary" "$@"

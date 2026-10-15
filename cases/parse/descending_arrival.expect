@@ -1,0 +1,2 @@
+exit 65
+stderr ps1: workload line 3: arrival 2 falls below arrival 3

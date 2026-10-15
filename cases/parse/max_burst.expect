@@ -1,0 +1,2 @@
+exit 65
+stderr ps1: the work clock would run 9223372036854775807 ticks, more than 2048
