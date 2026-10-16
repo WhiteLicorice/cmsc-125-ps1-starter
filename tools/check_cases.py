@@ -509,7 +509,7 @@ def replay(workers, policy, quantum, traces, problems):
                         f"preemption, but the quantum is {quantum}")
             elif policy == "stcf":
                 # The arriving job must be strictly shorter than the work the
-                # running worker holds at this tick, which is the preempt's own
+                # running worker holds at this tick, the preempt's own
                 # done count. A tie keeps the running worker.
                 left = by_name[name].burst - event["done"]
                 shorter = any(
@@ -593,7 +593,7 @@ def replay(workers, policy, quantum, traces, problems):
 
         # The work clock counts finished ticks, so at every event the workers'
         # done counts must add up to it. A larger sum means two workers ran at
-        # once; a smaller one means a tick advanced the clock without a worker.
+        # once. a smaller one means a tick advanced the clock without a worker.
         total_done = sum(done.values())
         if total_done != event_clock:
             problems.append(
