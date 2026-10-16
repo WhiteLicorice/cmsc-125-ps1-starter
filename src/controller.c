@@ -16,7 +16,7 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
        See "Its Bookkeeping, Per Worker" in the manual. */
 
     /* TODO: Install the SIGINT handler without SA_RESTART.
-       A blocking call then returns EINTR, and the handler's flag is seen.
+       A blocking call then returns EINTR. The handler's flag is seen.
        See "Every Exit Path" in the manual. */
 
     /* TODO: Open the trace writer for opts->trace_dir.
@@ -36,7 +36,7 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
        See "Stopping and Continuing" in the manual. */
 
     /* TODO: Wait for a worker's birth stop before you dispatch that worker.
-       A SIGCONT sent before the worker's own stop is lost, and the run hangs.
+       A SIGCONT sent before the worker's own stop is lost. The run hangs.
        See "Stopping and Continuing" in the manual. */
 
     /* TODO: Release every worker whose arrival tick the clock has reached.

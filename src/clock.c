@@ -2,7 +2,7 @@
  * clock.c: the given monotonic clock. Do not edit.
  *
  * Every timestamp in this project comes from CLOCK_MONOTONIC, read here. It
- * only moves forward, and no clock adjustment can step it backwards, so the
+ * only moves forward. No clock adjustment can step it backwards, so the
  * difference between two readings is a duration.
  */
 #include "ps1.h"
