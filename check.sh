@@ -2,8 +2,8 @@
 # check.sh: run the complete public automated check.
 #
 # The script builds, then runs every case under the given folder. Each case
-# names its own command line, its own expected exit code, and its own expected
-# schedule. The runner also checks the measured times, and it confirms that no
+# sets its own command line, its own expected exit code, and its own expected
+# schedule. The runner also checks the measured times. It confirms that no
 # controller or worker process survives a case.
 #
 #   ./check.sh                 run the published corpus in cases/

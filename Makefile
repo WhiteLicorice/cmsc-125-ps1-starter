@@ -1,4 +1,4 @@
-# Makefile: the starter's build. Do not edit.
+# Makefile provides the starter build. Do not edit it.
 #
 #   make        build build/cmsc-125-ps1
 #   make check  build, then run the public corpus
