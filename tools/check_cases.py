@@ -3,7 +3,7 @@
 check_cases.py: the CMSC 125 Problem Set 1 public case runner.
 
 The runner runs the student's own ./run entry point on each .work file under
-the case directory. Each case names its command line in a matching .args file
+the case directory. Each case specifies its command line in a matching .args file
 and its expectations in a matching .expect file.
 
 An .expect file holds one directive on each line:
@@ -24,7 +24,7 @@ traces and checks the decisions:
     arrivals, and each worker's remaining work after any overrun.
   * Only one worker runs at a time. A dispatch cannot occur while another
     worker runs. A preempt, stop, or completion must come from the running worker.
-  * The workers' done counts equal the work clock at every event. Each clock
+  * The sum of the workers' done counts equals the work clock at every event. Each clock
     tick belongs to exactly one worker.
   * A round-robin preemption occurs at `quantum` bytes into its slice.
   * FIFO never preempts. STCF preempts only when the arriving job is shorter
@@ -216,8 +216,8 @@ def policy_engine(workers, policy, quantum):
     """
     Runs the contract's policies on the tick clock, with no overrun.
 
-    Returns (dispatch pairs, finish ticks). The model is the manual's, written
-    from the definitions rather than from any implementation. A job whose
+    Returns (dispatch pairs, finish ticks). The model follows the manual's
+    definitions. Readers can check each implementation against this model. A job whose
     quantum ends joins the tail behind any job that arrived at that same tick,
     which is the ordering the manual states and the controller follows.
     """
@@ -654,11 +654,10 @@ def run_program(cmd, repo_root, trace_dir=None, interrupt=None):
     """
     Runs the entry point and returns (stdout, stderr, code, survivors).
 
-    The wait is on the controller's own exit, not on its pipes. A worker that
-    outlives the controller still holds the inherited pipe open, so a read
-    would block on it and a leaking run would look like a slow one. The
-    survivors are named before they are removed, because the cleanup check
-    reports them, and a run that hangs is reported as a timeout.
+    The runner waits for the controller, not for pipe EOF. A worker can outlive
+    the controller and keep an inherited pipe open. A pipe read would then block
+    and make the run look slow. The runner records survivors before cleanup.
+    A timeout marks a run that hangs.
     """
     process = subprocess.Popen(
         cmd,
@@ -714,7 +713,7 @@ def kill_tree(process):
 
 
 def running_processes():
-    """Lists the command lines holding the program's name, or None."""
+    """Returns matching comm values, or None if ps fails."""
     try:
         result = subprocess.run(["ps", "-A", "-o", "comm="], capture_output=True,
                                 text=True, timeout=10)
@@ -871,12 +870,11 @@ def check_report(report, workers, metrics, policy, quantum, problems):
 def check_measured(report, workers, metrics, traces, problems):
     """Recomputes every measured time from the trace and checks the report.
 
-    This path runs only for a finished, successful run, where every worker was
-    dispatched and completed. So every row must carry both measured times, and
-    the measured averages must match the rows. The replay sets the expected
-    presence. It has a first-dispatch time or finish time for the worker. A
-    dash stays legal only for a worker the run never dispatched or never
-    finished, which a partial or faulted run produces and check_partial covers.
+    This path checks a completed run. Every worker has a dispatch and finish
+    time. Each report row must include both times. The report averages must
+    match the worker rows. The replay records each worker's first dispatch and
+    finish times. A report uses `-` only when the run leaves a worker undispatched
+    or unfinished. The partial-run checker handles those rows.
     """
     for row in report["rows"]:
         name = row["name"]
@@ -931,13 +929,12 @@ def check_measured(report, workers, metrics, traces, problems):
 
 
 def check_rate(label, per_tick, problems):
-    """Applies the window to one per-tick rate.
+    """Checks one per-tick rate against the allowed window.
 
-    Below the floor a rate means the controller is not reading its clock, which
-    is a failure. Above the ceiling it means the host went off and did something
-    else while the controller waited, which is load rather than a wrong
-    measurement, so the check names the slice and lets the case pass. The
-    ceiling is a signal to run the case again, not a verdict.
+    A rate below the floor indicates a failed time measurement. The checker
+    reports that failure. A rate above the ceiling may reflect host load. The
+    checker identifies the affected slice and lets the case pass. A high rate
+    signals a rerun.
     """
     if per_tick < MS_PER_TICK_MIN:
         problems.append(

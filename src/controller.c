@@ -16,7 +16,7 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
        See "Its Bookkeeping, Per Worker" in the manual. */
 
     /* TODO: Install the SIGINT handler without SA_RESTART.
-       A blocking call then returns EINTR. The controller reads the handler's flag.
+       An interrupted read returns -1 and sets errno to EINTR. The controller checks the handler's flag.
        See "Every Exit Path" in the manual. */
 
     /* TODO: Open the trace writer for opts->trace_dir.
