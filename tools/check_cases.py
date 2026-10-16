@@ -20,24 +20,23 @@ computing until its stop lands, so a slice runs a few ticks past the quantum and
 the ticks shift from run to run. The runner instead replays each run from its
 traces and checks the decisions:
 
-  * every dispatch is the worker the policy picks, given the queue order, the
-    arrivals, and each worker's remaining work after any overrun;
-  * one worker runs at a time: a dispatch cannot happen while another worker is
-    still running, and a preempt, a stop, or a completion comes from the worker
-    that is running;
-  * the workers' done counts add up to the work clock at every event, so every
-    clock tick belongs to exactly one worker;
-  * a round-robin preemption happens at exactly `quantum` bytes into its slice;
-  * fifo never preempts, and an stcf preemption happens only when the arriving
-    job is strictly shorter than the running worker's remaining work;
-  * no worker gains a tick between its `stopped` event and its next `dispatch`;
-  * every worker completes its burst exactly, and the clock at the end is the
-    finished workers' total burst;
-  * the report's tick columns and averages match the replay exactly;
-  * every measured time matches the trace within a stated tolerance, and a
-    finished run reports a response and a turnaround for every worker;
-  * every measured rate sits above the window's floor, and a rate above its
-    ceiling is reported as host load rather than as a failure.
+  * Every dispatch follows the policy's choice. The choice uses queue order,
+    arrivals, and each worker's remaining work after any overrun.
+  * Only one worker runs at a time. A dispatch cannot occur while another
+    worker runs. A preempt, stop, or completion must come from the running worker.
+  * The workers' done counts equal the work clock at every event. Each clock
+    tick belongs to exactly one worker.
+  * A round-robin preemption occurs at `quantum` bytes into its slice.
+  * FIFO never preempts. STCF preempts only when the arriving job is shorter
+    than the running worker's remaining work.
+  * No worker gains a tick between its `stopped` event and next `dispatch`.
+  * Each worker completes its burst exactly. The final clock equals the sum of
+    the finished workers' bursts.
+  * The report's tick columns and averages match the replay exactly.
+  * Each measured time matches its trace within the stated tolerance. A
+    finished run reports a response and turnaround time for every worker.
+  * Each measured rate exceeds the window's floor. A rate above its ceiling
+    reports host load. That result keeps the case valid.
 
 The `.expect` schedule is the paper schedule for zero overrun. A run that
 differs from it is reported as information, never as a failure, because the
@@ -132,7 +131,7 @@ class Trace:
 
 
 def parse_work(path):
-    """Reads a workload file. Lenient: a malformed file is still a case."""
+    """Reads a workload file. The reader treats malformed files as cases."""
     workers = []
     for line in path.read_text(encoding="utf-8").splitlines():
         text = line.split("#", 1)[0].strip()
@@ -508,9 +507,9 @@ def replay(workers, policy, quantum, traces, problems):
                         f"worker {name}: a slice of {length} ticks ends in a "
                         f"preemption, but the quantum is {quantum}")
             elif policy == "stcf":
-                # The arriving job must be strictly shorter than the work the
-                # running worker holds at this tick, the preempt's own
-                # done count. A tie keeps the running worker.
+                # The arriving job must be strictly shorter than the running
+                # worker's remaining work. Remaining work is the burst minus
+                # the preempt event's done count. A tie keeps the running worker.
                 left = by_name[name].burst - event["done"]
                 shorter = any(
                     w.name != name and w.arrival == event_clock
@@ -593,7 +592,7 @@ def replay(workers, policy, quantum, traces, problems):
 
         # The work clock counts finished ticks, so at every event the workers'
         # done counts must add up to it. A larger sum means two workers ran at
-        # once. a smaller one means a tick advanced the clock without a worker.
+        # once. A smaller one means a tick advanced the clock without a worker.
         total_done = sum(done.values())
         if total_done != event_clock:
             problems.append(
@@ -874,8 +873,8 @@ def check_measured(report, workers, metrics, traces, problems):
 
     This path runs only for a finished, successful run, where every worker was
     dispatched and completed. So every row must carry both measured times, and
-    the measured averages must match the rows. The expected presence comes from
-    the replay: a first-dispatch time or a finish time exists for the worker. A
+    the measured averages must match the rows. The replay sets the expected
+    presence. It has a first-dispatch time or finish time for the worker. A
     dash stays legal only for a worker the run never dispatched or never
     finished, which a partial or faulted run produces and check_partial covers.
     """
