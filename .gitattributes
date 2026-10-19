@@ -7,3 +7,13 @@ check.sh text eol=lf
 *.work text eol=lf
 *.args text eol=lf
 *.expect text eol=lf
+
+# GitHub reports the repository's language from the byte count of each source
+# language. The checker and the shell entry points are not C, so hide them from
+# that count and leave the C sources and the header detectable.
+#
+# The checker.
+*.py linguist-detectable=false
+# The test entry points.
+*.sh linguist-detectable=false
+/run linguist-detectable=false
