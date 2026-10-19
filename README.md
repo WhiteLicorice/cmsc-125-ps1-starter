@@ -13,7 +13,7 @@ controller uses POSIX calls only.
 
 ## Pair
 
-Replace the two entries below. An assigned trio adds one entry.
+Enter two names below. An assigned trio adds one entry.
 
 - Full Name (`@github-username`)
 - Full Name (`@github-username`)
@@ -83,17 +83,16 @@ submit.
 ## The First Run
 
 A fresh clone builds without warnings. It passes 8 of the 57 cases and exits 1.
-That number needs care, because the 8 passing cases test nothing you wrote.
-They are the command-line refusals. `src/main.c` is given complete, so a bad
-option is refused before your code runs at all.
+The 8 passing cases test nothing you wrote. They check command-line refusals.
+`src/main.c` is complete, so it refuses a bad option before your code runs.
 
 The other 49 cases need `src/workload.c`, `src/controller.c`, `src/worker.c`,
 and `src/report.c`. The workflow in the Actions tab is red for the same reason.
 That state is correct for a starter. Your fork passes after you implement the
 four files.
 
-On the fork, open the Actions tab once and enable workflows. GitHub disables
-them on every fork, and the workflow run is part of the submission.
+Enable workflows in the Actions tab after you fork the repository. GitHub
+disables them on forks. The workflow run is part of the submission.
 
 ## Hosts
 
@@ -133,7 +132,7 @@ sudo apt update
 sudo apt install -y build-essential make python3
 ```
 
-Work inside the Ubuntu file system, which is your home directory. A checkout
+Work in the Ubuntu file system under your home directory. A checkout
 under `/mnt/c` works but it is slower, and file permissions there behave
 differently.
 
@@ -150,18 +149,17 @@ python3 --version
 The 57 cases under `cases/` are the cases the instructor grades with. Each
 `.work` file holds a workload. Each `.args` file holds the command line. Each
 `.expect` file holds the expected exit code, the expected diagnostic, and the
-paper schedule: the dispatch order the policy gives with no overrun.
+paper schedule. It shows the dispatch order without an overrun.
 
 The one case your pair writes lives under `student-cases/`. That folder holds a
 short README and an example in the same three-file form. Run it with
 `./check.sh student-cases`.
 
-The runner replays each run from its traces and checks the decisions the policy
-made: a round-robin slice ends at exactly `quantum` bytes, and a stopped worker
-never gains a tick before its next dispatch. Every tick count and average in the
-report is exact against the replay of that run's own traces. A measured time is
-compared against a stated window, never against an exact value, because a real
-tick costs what the machine decides. The overrun moves the ticks from run to
-run, so the runner does not compare a run with one fixed schedule. The manual
-states the window, the overrun, and the reason for both.
+The runner replays each run from its traces and checks the policy decisions.
+A round-robin slice ends at exactly `quantum` bytes. A stopped worker gains no
+tick before its next dispatch. Reported tick counts and averages must match the
+run's trace. The runner checks measured time against a stated window. Host
+conditions affect each tick, so no exact time applies. An overrun moves ticks
+between runs. The runner checks each run against its own trace. The manual states the
+window and explains the overrun.
 

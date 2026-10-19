@@ -2,12 +2,11 @@
 # Your Own Case
 
 This folder holds the one boundary or failure case your pair writes for the
-rubric's implementation row. The published corpus lives in `cases/`, and it
-stays unchanged.
+rubric's implementation row. The published corpus lives in `cases/`. Keep it unchanged.
 
 The three files named `example` form one case. Replace them with your own case.
-A case you did not write earns no marks, so keep the example only until you
-have a better one.
+A case you write earns marks. Replace the example when you have a case of your
+own.
 
 ## One Case, Three Files
 

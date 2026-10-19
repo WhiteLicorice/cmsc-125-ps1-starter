@@ -65,12 +65,12 @@ from pathlib import Path
 MS_PER_TICK_MIN = 0.001
 MS_PER_TICK_MAX = 100.0
 
-# A measured time the report prints is compared against the value the trace
-# yields, within this many milliseconds. The two values come from the same run,
-# so they agree to well under one microsecond. The tolerance is here for an
-# implementation that reads its clock twice, once for the trace and once for the
-# report. It is tight enough that a fabricated response or turnaround is caught
-# wherever the true value is more than a millisecond.
+# The runner compares the reported time with the trace value. It allows this
+# many milliseconds of difference. Both values come from one run. They should
+# agree within one microsecond. An implementation may read the clock twice, once
+# for the trace and once for the report. The tolerance accounts for those reads.
+# It catches a fabricated response or turnaround when the true value differs by
+# more than one millisecond.
 MS_TOLERANCE = 1.0
 
 TIMEOUT_SECONDS = 30
@@ -1183,9 +1183,9 @@ def run_case(work_path, repo_root):
 
 def main():
     parser = argparse.ArgumentParser(description="CMSC 125 Problem Set 1 case runner.")
-    parser.add_argument("case_folder", help="the folder of .work cases, e.g. cases")
+    parser.add_argument("case_folder", help="Folder that holds the .work cases, such as cases")
     parser.add_argument("--repo-root", default=".",
-                        help="the repository root. Defaults to the current directory.")
+                        help="Repository root. Defaults to the current directory.")
     args = parser.parse_args()
 
     repo_root = Path(args.repo_root).resolve()
