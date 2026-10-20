@@ -42,6 +42,13 @@ if ! "$PYTHON" tools/check_cases.py "$case_folder"; then
   failures=1
 fi
 
+if [[ "$case_folder" == "cases" ]]; then
+  banner "invariants"
+  if ! "$PYTHON" tools/check_invariants.py .; then
+    failures=1
+  fi
+fi
+
 banner "result"
 if [[ "$failures" -eq 0 ]]; then
   if [[ "$case_folder" == "cases" ]]; then

@@ -3,7 +3,7 @@ on: [push]
 
 # This workflow is red before the work is done, and that is the correct
 # starting state. The starter ships four unimplemented files, so it passes 8 of
-# the 57 published cases and exits 1. The passing 8 test the given command-line
+# the 57 published cases, reports no passing invariant check, and exits 1. The passing 8 test the given command-line
 # parser, not the four files a pair writes.
 #
 # The workflow must be green on the commit you submit. That commit holds one

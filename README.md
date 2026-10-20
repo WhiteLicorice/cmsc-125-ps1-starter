@@ -82,7 +82,8 @@ submit.
 
 ## The First Run
 
-A fresh clone builds without warnings. It passes 8 of the 57 cases and exits 1.
+A fresh clone builds without warnings. It passes 8 of the 57 cases and exits 1. The same run reports no passing invariant
+check. One check may report a skip on a platform that cannot load the shim.
 The 8 passing cases test nothing you wrote. They check command-line refusals.
 `src/main.c` is complete, so it refuses a bad option before your code runs.
 
@@ -163,7 +164,7 @@ conditions affect each tick, so no exact time applies. An overrun moves ticks
 between runs. The runner checks each run against its own trace. The manual states the
 window and explains the overrun.
 
-The four legacy private checks are now public at `tools/private_checks.py`.
-They validate the reference and are not part of your grade. After your build,
-run them with `python3 tools/private_checks.py .`.
+`check.sh` runs the four invariant checks after the public cases. They cover
+signal cleanup, a failed fork, unrelated processes, and policy replay. The
+checks are part of the same command, so no hidden suite exists.
 

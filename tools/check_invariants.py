@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-private_checks.py: legacy private checks, now published. They validate the reference and are not part of the student's grade.
+check_invariants.py: checks the invariants outside the published case corpus.
 
-These checks are not part of the student's grade. Each one exercises a claim
-that the public corpus cannot state on its own:
+These checks are part of the check. `check.sh` runs them after the public
+corpus. Each one exercises a claim that the case corpus cannot state on its
+own:
 
 1. A worker killed by a signal is a fault, and nothing survives it.
 2. A fork that fails after one child exists is a fault, and nothing survives
@@ -18,7 +19,7 @@ that the public corpus cannot state on its own:
    traces and confirms the decisions that run made. The replay is the
    published runner's, so the check and the corpus agree.
 
-Usage: python3 private_checks.py <work directory with a built starter>
+Usage: python3 check_invariants.py <work directory with a built starter>
 Exit code: 0 when every check passes, 1 otherwise.
 """
 
@@ -301,7 +302,7 @@ CHECKS = [
 
 def main():
     if len(sys.argv) != 2:
-        print("usage: python3 private_checks.py <work directory>", file=sys.stderr)
+        print("usage: python3 check_invariants.py <work directory>", file=sys.stderr)
         return 1
     work = Path(sys.argv[1]).resolve()
     if not (work / "run").exists():
@@ -326,7 +327,7 @@ def main():
         else:
             print(f"[PASS] {title}")
     ran = len(CHECKS) - skipped
-    summary = f"\n{ran - failures}/{ran} private checks passed"
+    summary = f"\n{ran - failures}/{ran} invariant checks passed"
     if skipped:
         summary += f", {skipped} skipped"
     print(summary + ".")
