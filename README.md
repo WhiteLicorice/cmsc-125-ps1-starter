@@ -163,3 +163,7 @@ conditions affect each tick, so no exact time applies. An overrun moves ticks
 between runs. The runner checks each run against its own trace. The manual states the
 window and explains the overrun.
 
+The four legacy private checks are now public at `tools/private_checks.py`.
+They validate the reference and are not part of your grade. After your build,
+run them with `python3 tools/private_checks.py .`.
+
