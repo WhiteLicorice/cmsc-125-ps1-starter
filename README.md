@@ -167,4 +167,3 @@ window and explains the overrun.
 `check.sh` runs the four invariant checks after the public cases. They cover
 signal cleanup, a failed fork, unrelated processes, and policy replay. The
 checks are part of the same command, so no hidden suite exists.
-
