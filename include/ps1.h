@@ -155,7 +155,7 @@ ps1_trace *ps1_trace_open(const char *dir, const ps1_workload *wl, ps1_diag *dia
 
 /*
  * Writes the header of worker `index`, naming its arrival tick, its burst, and
- * the CLOCK_MONOTONIC second of its fork. Call it once, before the worker's
+ * the CLOCK_MONOTONIC second of its release. Call it once, before the worker's
  * first event.
  */
 ps1_status ps1_trace_arrival(ps1_trace *t, size_t index, double seconds);

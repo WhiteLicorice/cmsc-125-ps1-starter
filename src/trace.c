@@ -4,7 +4,7 @@
  * One file per worker, named <name>.trace, inside the trace directory. Each
  * line holds one event: its name, the tick of the work clock, the ticks that
  * worker has completed, and the CLOCK_MONOTONIC seconds of the call. The
- * controller writes the file's header when it forks the worker.
+ * controller writes the file's header when it releases the worker.
  *
  *   # ps1 trace: worker A arrival 0 burst 10 time 0.000412
  *   dispatch 0 0 0.000500

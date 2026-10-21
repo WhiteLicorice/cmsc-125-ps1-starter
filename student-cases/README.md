@@ -28,6 +28,7 @@ An `.expect` file holds one directive on a line.
 | `stderr <text>` | a substring stderr must hold, repeatable |
 | `schedule <w>@<tick>` | the dispatch order and the tick of each dispatch |
 | `interrupt SIGINT` | send `SIGINT` to the controller after a short delay |
+| `path <relative>` | pass this workload path instead of the case's `.work` file |
 | `partial` | accept a partial report, as `SIGINT` and a fault produce |
 
 ## Run Your Case
