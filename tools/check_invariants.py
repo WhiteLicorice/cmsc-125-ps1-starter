@@ -9,12 +9,13 @@ own:
 1. A worker killed by a signal is a fault, and nothing survives it.
 2. A fork that fails after one child exists is a fault, and nothing survives
    it. The check loads a small shim through LD_PRELOAD. The shim prints a load
-   marker when the loader loads it, and a refusal marker when a `fork` call
-   reaches it. A run with no load marker, or a run that exits 0 with no refusal,
-   cannot prove the fork behaviour, so it reports a skip. A run that exits
-   nonzero with no refusal reports a failure that names its exit code and its
-   first line of standard error. A shim that fails to compile reports a failure
-   with the compiler diagnostic.
+   marker when any process loads it, and a refusal marker when it refuses a
+   second `fork`. The markers do not show that a `fork` call reached the shim,
+   because the shim refuses only the second call. A run that exits 0 with no
+   refusal observed reports a skip, because it cannot test failure handling. A
+   run that exits nonzero with no refusal reports a failure that names its exit
+   code and its first line of standard error. A shim that fails to compile
+   reports a failure with the compiler diagnostic.
 3. The controller signals only its own children. An unrelated process is
    still alive after a run.
 4. Each run of one workload follows the policy. Two runs do not have to make
@@ -208,12 +209,13 @@ def check_policy_validity(work):
 
 # The shim makes the second `fork` fail with EAGAIN, after one child already
 # exists. It prints two markers. The load marker comes from a constructor, so
-# it appears whenever the loader loads the library in any process of the run.
-# The refusal marker appears only when a `fork` call reaches the shim. A
-# missing load marker means no process loaded the library. A missing refusal
-# marker means no `fork` call reached it. The exit code tells the two cases of
-# a missing refusal apart: exit 0 is a finished run whose forks never reached
-# the shim, and a nonzero exit is a run that failed for its own reason.
+# it appears whenever any process of the run loads the library. The refusal
+# marker appears only when the shim refuses the second `fork`. A first `fork`
+# passes through unrefused, so a missing refusal marker does not show that no
+# call reached the shim. A missing load marker means no process loaded the
+# library. The exit code decides the two cases of a missing refusal: exit 0 is
+# a run that finished without a refusal observed, and a nonzero exit is a run
+# that failed for its own reason.
 FORK_SHIM_SOURCE = """
 #define _GNU_SOURCE
 #include <errno.h>
@@ -276,11 +278,11 @@ def check_fork_failure(work):
     """A failed fork after one child starts is a fault. The check must find no
     worker process left alive.
 
-    Returns a `Skip` when the run cannot prove the fork behaviour. That happens
-    when no process loaded the shim, or when the run finished with no `fork`
-    call reaching it, because a static controller and a loader that skips the
-    binary both hide the interposed `fork`. A run that failed for its own
-    reason is a failure, not a skip.
+    Returns a `Skip` when the run cannot test failure handling. That happens
+    when it exits 0 with no fork refusal observed, or when no process loaded the
+    shim. The refusal marker proves a refusal; its absence does not prove that
+    no `fork` reached the shim, because the shim refuses only the second call. A
+    run that failed for its own reason is a failure, not a skip.
     """
     directory = Path(tempfile.mkdtemp(prefix="ps1-fork-shim-"))
     try:
@@ -305,13 +307,15 @@ def check_fork_failure(work):
         if process.returncode != 0:
             return failed_run_outcome(process.returncode, stderr)
 
-        # The run finished with no refusal. Either the controller's forks never
-        # reached the shim, or its forks were never refused.
+        # The run finished with no fork refused. The run cannot test failure
+        # handling. The load marker says only whether the shim reached any
+        # process, so it picks the wording. Neither case shows that no `fork`
+        # call reached the shim, because the shim refuses only the second call.
         if FORK_SHIM_LOAD_MARKER in stderr:
-            return Skip("the shim loaded, but the controller's fork calls never "
-                        "reached it, so the run proves nothing")
-        return Skip("the platform did not load the shim, so no process could "
-                    "interpose the controller's forks")
+            return Skip("the shim loaded, but no fork refusal was observed at "
+                        "exit 0, so the run cannot test failure handling")
+        return Skip("the platform did not load the shim, so no fork refusal "
+                    "could be observed at exit 0")
     finally:
         shutil.rmtree(directory, ignore_errors=True)
 
