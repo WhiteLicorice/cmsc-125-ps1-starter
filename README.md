@@ -83,7 +83,9 @@ submit.
 ## The First Run
 
 A fresh clone builds without warnings. It passes 8 of the 57 cases and exits 1. The same run reports no passing invariant
-check. One check may report a skip on a platform that cannot load the shim.
+check. The failed-fork check names the real cause: `workload.c` is not
+implemented, so the controller exits 65 before it forks a second child. One
+check reports a skip only on a platform that cannot load the shim.
 The 8 passing cases test nothing you wrote. They check command-line refusals.
 `src/main.c` is complete, so it refuses a bad option before your code runs.
 

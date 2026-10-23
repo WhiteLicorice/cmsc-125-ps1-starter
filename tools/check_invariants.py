@@ -8,9 +8,11 @@ own:
 
 1. A worker killed by a signal is a fault, and nothing survives it.
 2. A fork that fails after one child exists is a fault, and nothing survives
-   it. The check loads a small shim through LD_PRELOAD. A shim that compiles
-   but never loads reports a skip, and a shim that fails to compile reports a
-   failure with the compiler diagnostic.
+   it. The check loads a small shim through LD_PRELOAD. The shim prints a load
+   marker when the loader loads it, so a platform that ignores the preload
+   reports a skip. A shim that loads but sees no second fork reports a failure
+   that names the exit code and the controller's first line of standard error.
+   A shim that fails to compile reports a failure with the compiler diagnostic.
 3. The controller signals only its own children. An unrelated process is
    still alive after a run.
 4. Each run of one workload follows the policy. Two runs do not have to make
@@ -196,14 +198,23 @@ def check_policy_validity(work):
 
 
 # The shim makes the second `fork` fail with EAGAIN, after one child already
-# exists. It prints a marker so the check can tell a refused fork from an
-# interposer that never loaded.
+# exists. It prints two markers. The load marker comes from a constructor, so
+# it appears whenever the loader loads the library. The refusal marker appears
+# only when the second fork is refused. A missing load marker means the
+# platform ignored the preload. A missing refusal marker means the controller
+# exited before its second fork.
 FORK_SHIM_SOURCE = """
 #define _GNU_SOURCE
 #include <errno.h>
 #include <dlfcn.h>
 #include <stdio.h>
 #include <unistd.h>
+
+__attribute__((constructor))
+static void ps1_fork_shim_loaded(void)
+{
+    fprintf(stderr, "ps1-fork-shim: loaded\\n");
+}
 
 pid_t fork(void)
 {
@@ -220,6 +231,7 @@ pid_t fork(void)
 """
 
 FORK_SHIM_MARKER = "ps1-fork-shim: refusing fork"
+FORK_SHIM_LOAD_MARKER = "ps1-fork-shim: loaded"
 
 
 def build_fork_shim(directory):
@@ -251,7 +263,11 @@ def preload_environment(library):
 
 def check_fork_failure(work):
     """A failed fork after one child starts is a fault. The check must find no
-    worker process left alive."""
+    worker process left alive.
+
+    Returns `None` only when the load marker is missing, because then the
+    platform ignored the preload and the run proves nothing.
+    """
     directory = Path(tempfile.mkdtemp(prefix="ps1-fork-shim-"))
     try:
         try:
@@ -269,10 +285,22 @@ def check_fork_failure(work):
             stdout, stderr = process.communicate(timeout=10)
             return "the controller did not exit after a fork failed"
 
-        # Without the marker the interposer never loaded, so the run proves
-        # nothing. Report a skip rather than a result.
-        if FORK_SHIM_MARKER not in stderr:
+        # Without the load marker the loader never loaded the shim, so the run
+        # proves nothing. Report a skip rather than a result.
+        if FORK_SHIM_LOAD_MARKER not in stderr:
             return None
+
+        # The shim loaded, so it held the interposed `fork`. A missing refusal
+        # marker means the controller never reached its second fork. It exited
+        # before that call. The shim's own markers go, so the reported line is
+        # the controller's first message.
+        if FORK_SHIM_MARKER not in stderr:
+            lines = [line for line in stderr.splitlines()
+                     if line.strip() and not line.startswith("ps1-fork-shim:")]
+            first_line = lines[0] if lines else "no output"
+            return ("the shim loaded, but the controller exited before its "
+                    f"second fork: exit code {process.returncode}, "
+                    f"first stderr line '{first_line}'")
 
         problems = []
         if process.returncode != 70:
