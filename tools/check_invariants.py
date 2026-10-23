@@ -9,10 +9,12 @@ own:
 1. A worker killed by a signal is a fault, and nothing survives it.
 2. A fork that fails after one child exists is a fault, and nothing survives
    it. The check loads a small shim through LD_PRELOAD. The shim prints a load
-   marker when the loader loads it, so a platform that ignores the preload
-   reports a skip. A shim that loads but sees no second fork reports a failure
-   that names the exit code and the controller's first line of standard error.
-   A shim that fails to compile reports a failure with the compiler diagnostic.
+   marker when the loader loads it, and a refusal marker when a `fork` call
+   reaches it. A run with no load marker, or a run that exits 0 with no refusal,
+   cannot prove the fork behaviour, so it reports a skip. A run that exits
+   nonzero with no refusal reports a failure that names its exit code and its
+   first line of standard error. A shim that fails to compile reports a failure
+   with the compiler diagnostic.
 3. The controller signals only its own children. An unrelated process is
    still alive after a run.
 4. Each run of one workload follows the policy. Two runs do not have to make
@@ -38,6 +40,13 @@ from pathlib import Path
 
 TIMEOUT = 30
 PROCESS_NAME = "cmsc-125-ps1"
+
+
+class Skip:
+    """A check that could not run. The reason prints under the [SKIP] line."""
+
+    def __init__(self, reason):
+        self.reason = reason
 
 
 def run(command, cwd, timeout=TIMEOUT):
@@ -199,10 +208,12 @@ def check_policy_validity(work):
 
 # The shim makes the second `fork` fail with EAGAIN, after one child already
 # exists. It prints two markers. The load marker comes from a constructor, so
-# it appears whenever the loader loads the library. The refusal marker appears
-# only when the second fork is refused. A missing load marker means the
-# platform ignored the preload. A missing refusal marker means the controller
-# exited before its second fork.
+# it appears whenever the loader loads the library in any process of the run.
+# The refusal marker appears only when a `fork` call reaches the shim. A
+# missing load marker means no process loaded the library. A missing refusal
+# marker means no `fork` call reached it. The exit code tells the two cases of
+# a missing refusal apart: exit 0 is a finished run whose forks never reached
+# the shim, and a nonzero exit is a run that failed for its own reason.
 FORK_SHIM_SOURCE = """
 #define _GNU_SOURCE
 #include <errno.h>
@@ -265,8 +276,11 @@ def check_fork_failure(work):
     """A failed fork after one child starts is a fault. The check must find no
     worker process left alive.
 
-    Returns `None` only when the load marker is missing, because then the
-    platform ignored the preload and the run proves nothing.
+    Returns a `Skip` when the run cannot prove the fork behaviour. That happens
+    when no process loaded the shim, or when the run finished with no `fork`
+    call reaching it, because a static controller and a loader that skips the
+    binary both hide the interposed `fork`. A run that failed for its own
+    reason is a failure, not a skip.
     """
     directory = Path(tempfile.mkdtemp(prefix="ps1-fork-shim-"))
     try:
@@ -285,39 +299,54 @@ def check_fork_failure(work):
             stdout, stderr = process.communicate(timeout=10)
             return "the controller did not exit after a fork failed"
 
-        # Without the load marker the loader never loaded the shim, so the run
-        # proves nothing. Report a skip rather than a result.
-        if FORK_SHIM_LOAD_MARKER not in stderr:
-            return None
+        if FORK_SHIM_MARKER in stderr:
+            return fork_refused_outcome(process.returncode, stdout, stderr)
 
-        # The shim loaded, so it held the interposed `fork`. A missing refusal
-        # marker means the controller never reached its second fork. It exited
-        # before that call. The shim's own markers go, so the reported line is
-        # the controller's first message.
-        if FORK_SHIM_MARKER not in stderr:
-            lines = [line for line in stderr.splitlines()
-                     if line.strip() and not line.startswith("ps1-fork-shim:")]
-            first_line = lines[0] if lines else "no output"
-            return ("the shim loaded, but the controller exited before its "
-                    f"second fork: exit code {process.returncode}, "
-                    f"first stderr line '{first_line}'")
+        if process.returncode != 0:
+            return failed_run_outcome(process.returncode, stderr)
 
-        problems = []
-        if process.returncode != 70:
-            problems.append(f"exit code: expected 70, got {process.returncode}")
-        if "result faulted" not in stdout:
-            problems.append("the report does not end in 'result faulted'")
-        if "cannot fork worker" not in stderr:
-            problems.append("stderr does not name the fork failure: "
-                            f"'{stderr.strip()}'")
-        time.sleep(0.05)
-        survivors = processes_named(PROCESS_NAME)
-        if survivors:
-            problems.append(f"{len(survivors)} process(es) survived the fault")
-            kill_leftovers()
-        return "; ".join(problems)
+        # The run finished with no refusal. Either the controller's forks never
+        # reached the shim, or its forks were never refused.
+        if FORK_SHIM_LOAD_MARKER in stderr:
+            return Skip("the shim loaded, but the controller's fork calls never "
+                        "reached it, so the run proves nothing")
+        return Skip("the platform did not load the shim, so no process could "
+                    "interpose the controller's forks")
     finally:
         shutil.rmtree(directory, ignore_errors=True)
+
+
+def first_controller_line(stderr):
+    """The controller's first stderr line. The shim's own markers go first."""
+    lines = [line for line in stderr.splitlines()
+             if line.strip() and not line.startswith("ps1-fork-shim:")]
+    return lines[0] if lines else "no output"
+
+
+def failed_run_outcome(returncode, stderr):
+    """A run that exited nonzero with no refused fork failed for its own
+    reason. The message reports that, and claims nothing about forking."""
+    return ("the run failed before any fork was refused: "
+            f"exit code {returncode}, "
+            f"first stderr line '{first_controller_line(stderr)}'")
+
+
+def fork_refused_outcome(returncode, stdout, stderr):
+    """The ordinary path: a fork was refused, so every claim applies."""
+    problems = []
+    if returncode != 70:
+        problems.append(f"exit code: expected 70, got {returncode}")
+    if "result faulted" not in stdout:
+        problems.append("the report does not end in 'result faulted'")
+    if "cannot fork worker" not in stderr:
+        problems.append("stderr does not name the fork failure: "
+                        f"'{stderr.strip()}'")
+    time.sleep(0.05)
+    survivors = processes_named(PROCESS_NAME)
+    if survivors:
+        problems.append(f"{len(survivors)} process(es) survived the fault")
+        kill_leftovers()
+    return "; ".join(problems)
 
 
 CHECKS = [
@@ -345,10 +374,9 @@ def main():
             problem = check(work)
         except (OSError, subprocess.SubprocessError) as error:
             problem = f"the check could not run: {error}"
-        if problem is None:
+        if isinstance(problem, Skip):
             skipped += 1
-            print(f"[SKIP] {title}\n       the shim compiled, but its marker "
-                  "never appeared, so this platform did not load it")
+            print(f"[SKIP] {title}\n       {problem.reason}")
         elif problem:
             failures += 1
             print(f"[FAIL] {title}\n       {problem}")
