@@ -46,6 +46,8 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
 
     /* TODO: When nothing is running, pick a worker by the policy.
        Continue the worker with SIGCONT.
+       Record the dispatch time before you send SIGCONT. After the signal,
+       the worker can run its whole slice before your next line.
        cases/normal/fifo_single.work
        See "The Policies" in the manual. */
 
@@ -102,6 +104,8 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
     /* TODO: Put a still-runnable preempted worker at the back of the queue.
        Do this after the drain and the completion or fault decision.
        Skip this step under stcf.
+       The next dispatch of this worker follows the dispatch rule above.
+       Record its new dispatch time before the SIGCONT.
        See "Round Robin" in the manual. */
 
     /* TODO: Record a worker's response at its first dispatch.
