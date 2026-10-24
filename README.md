@@ -85,8 +85,9 @@ submit.
 A fresh clone builds without warnings. It passes 8 of the 57 cases and exits 1. The same run reports no passing invariant
 check. The failed-fork check gives the real reason: `workload.c` is not
 implemented, so the run fails at exit 65 before any fork is refused. A check
-reports a skip instead only when the run exits 0 with no fork refusal observed,
-because then it cannot test failure handling.
+reports a skip instead in two cases. With no load line it skips, whatever the
+exit code, because nothing could interpose a `fork`. With a load line and exit 0
+it skips too, since it cannot test failure handling.
 The 8 passing cases test nothing you wrote. They check command-line refusals.
 `src/main.c` is complete, so it refuses a bad option before your code runs.
 

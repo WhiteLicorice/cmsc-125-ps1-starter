@@ -11,11 +11,13 @@ own:
    it. The check loads a small shim through LD_PRELOAD. The shim prints a load
    marker when any process loads it, and a refusal marker when it refuses a
    second `fork`. The markers do not show that a `fork` call reached the shim,
-   because the shim refuses only the second call. A run that exits 0 with no
-   refusal observed reports a skip, because it cannot test failure handling. A
-   run that exits nonzero with no refusal reports a failure that names its exit
-   code and its first line of standard error. A shim that fails to compile
-   reports a failure with the compiler diagnostic.
+   because the shim refuses only the second call. A run with no load marker
+   reports a skip, whatever its exit code, because nothing could interpose the
+   call and a loader may abort the run itself. A run with a load marker and exit
+   0 reports a skip, because it cannot test failure handling. A load marker with
+   a nonzero exit reports a failure that names the exit code and the first line
+   of standard error. A shim that fails to compile reports a failure with the
+   compiler diagnostic.
 3. The controller signals only its own children. An unrelated process is
    still alive after a run.
 4. Each run of one workload follows the policy. Two runs do not have to make
@@ -278,11 +280,13 @@ def check_fork_failure(work):
     """A failed fork after one child starts is a fault. The check must find no
     worker process left alive.
 
-    Returns a `Skip` when the run cannot test failure handling. That happens
-    when it exits 0 with no fork refusal observed, or when no process loaded the
-    shim. The refusal marker proves a refusal; its absence does not prove that
-    no `fork` reached the shim, because the shim refuses only the second call. A
-    run that failed for its own reason is a failure, not a skip.
+    The branches are decided in this order. A refusal marker runs the ordinary
+    checks. No load marker is a `Skip`, whatever the exit code, because nothing
+    could interpose a `fork` and a loader can abort the run itself. A load
+    marker with exit 0 is a `Skip`, because the run cannot test failure
+    handling. A load marker with a nonzero exit is a failure. The refusal marker
+    proves a refusal. Its absence does not prove that no `fork` reached the
+    shim, because the shim refuses only the second call.
     """
     directory = Path(tempfile.mkdtemp(prefix="ps1-fork-shim-"))
     try:
@@ -304,18 +308,21 @@ def check_fork_failure(work):
         if FORK_SHIM_MARKER in stderr:
             return fork_refused_outcome(process.returncode, stdout, stderr)
 
-        if process.returncode != 0:
-            return failed_run_outcome(process.returncode, stderr)
+        # No process loaded the shim, so nothing could interpose the
+        # controller's `fork`. That holds whatever the exit code, because a
+        # loader that refuses the inserted library can abort the run itself.
+        if FORK_SHIM_LOAD_MARKER not in stderr:
+            return Skip("the platform did not load the shim, so the check "
+                        "cannot run")
 
-        # The run finished with no fork refused. The run cannot test failure
-        # handling. The load marker says only whether the shim reached any
-        # process, so it picks the wording. Neither case shows that no `fork`
-        # call reached the shim, because the shim refuses only the second call.
-        if FORK_SHIM_LOAD_MARKER in stderr:
+        # The shim reached a process but saw no refusal. A run at exit 0 cannot
+        # test failure handling. Neither case shows that no `fork` call reached
+        # the shim, because the shim refuses only the second call.
+        if process.returncode == 0:
             return Skip("the shim loaded, but no fork refusal was observed at "
                         "exit 0, so the run cannot test failure handling")
-        return Skip("the platform did not load the shim, so no fork refusal "
-                    "could be observed at exit 0")
+
+        return failed_run_outcome(process.returncode, stderr)
     finally:
         shutil.rmtree(directory, ignore_errors=True)
 
