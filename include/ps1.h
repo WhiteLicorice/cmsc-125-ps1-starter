@@ -26,8 +26,9 @@
  * One tick of work. The definition is fixed so that every worker burns the
  * same work for a tick. The loop cost limits how far the worker can progress
  * before SIGSTOP. The worker writes far less than one pipe buffer in that
- * interval. A caller uses the returned value as the next seed. This use stops
- * the compiler from removing the loop.
+ * interval. A caller uses the returned value as the next seed. The value must
+ * also reach observable output, such as the progress byte. A seed that reaches
+ * no output lets the compiler remove the loop.
  */
 static inline uint64_t ps1_tick(uint64_t seed)
 {

@@ -940,7 +940,8 @@ def check_rate(label, per_tick, problems):
         problems.append(
             f"{label} costs {per_tick:.3f} ms per tick, below the "
             f"{MS_PER_TICK_MIN} ms floor; the controller is not measuring, or "
-            "it reads the dispatch time after SIGCONT")
+            "it reads the dispatch time after SIGCONT, or the tick's work was "
+            "optimized away")
     elif per_tick > MS_PER_TICK_MAX:
         print(f"       [info] {label} costs {per_tick:.3f} ms per tick, over the "
               f"{MS_PER_TICK_MAX} ms ceiling; the host was busy, so run the case "

@@ -10,14 +10,15 @@ own:
 2. A fork that fails after one child exists is a fault, and nothing survives
    it. The check loads a small shim through LD_PRELOAD. The shim prints a load
    marker when any process loads it, and a refusal marker when it refuses a
-   second `fork`. The markers do not show that a `fork` call reached the shim,
-   because the shim refuses only the second call. A run with no load marker
-   reports a skip, whatever its exit code, because nothing could interpose the
-   call and a loader may abort the run itself. A run with a load marker and exit
-   0 reports a skip, because it cannot test failure handling. A load marker with
-   a nonzero exit reports a failure that names the exit code and the first line
-   of standard error. A shim that fails to compile reports a failure with the
-   compiler diagnostic.
+   second `fork`. A refusal marker proves that a `fork` call reached the shim. A
+   load marker alone does not, because the shim refuses only the second call.
+   When no refusal marker appears, the exit code decides. A run with no load
+   marker reports a skip, whatever its exit code, because nothing could
+   interpose the call and a loader may abort the run itself. A run with a load
+   marker at exit 0 reports a skip, because it cannot test failure handling. A
+   load marker with a nonzero exit reports a failure that names the exit code
+   and the first line of standard error. A shim that fails to compile reports a
+   failure with the compiler diagnostic.
 3. The controller signals only its own children. An unrelated process is
    still alive after a run.
 4. Each run of one workload follows the policy. Two runs do not have to make

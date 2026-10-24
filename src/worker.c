@@ -21,6 +21,8 @@ void ps1_worker_main(const ps1_workload *wl, size_t index, int progress_fd)
 
     /* TODO: Burn one tick with ps1_tick.
        Use the previous result as the input to each tick.
+       Pass that result into the progress byte, so the byte depends on it.
+       A seed that reaches no output lets the compiler delete the loop.
        See "One Tick Is One Piece of Work" in the manual. */
 
     /* TODO: Write one byte on the progress pipe for each finished tick.
