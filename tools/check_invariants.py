@@ -97,76 +97,79 @@ def trace_has_event(trace_dir):
 
 def check_killed_worker(work):
     """A worker killed by SIGKILL is reported as a fault, and nothing survives."""
-    traces = work / "traces-killed"
-    process = subprocess.Popen(
-        ["./run", "--policy", "fifo", "--trace-dir", str(traces),
-         "cases/cleanup/sigint_mid_run.work"],
-        cwd=work, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
-        start_new_session=True)
+    with tempfile.TemporaryDirectory(prefix="ps1-killed-") as scratch:
+        traces = Path(scratch) / "traces-killed"
+        process = subprocess.Popen(
+            ["./run", "--policy", "fifo", "--trace-dir", str(traces),
+             "cases/cleanup/sigint_mid_run.work"],
+            cwd=work, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+            start_new_session=True)
 
-    # A fixed delay cannot serve here. A faster compiler turns the same workload
-    # into a shorter run. A check that kills nothing tests nothing. Wait for
-    # the first event, then give the run a moment to keep going. The check waits
-    # for the first trace line. The controller creates the trace file before any
-    # event.
-    deadline = time.time() + 5.0
-    while time.time() < deadline and process.poll() is None:
-        if trace_has_event(traces):
-            break
-        time.sleep(0.005)
-    time.sleep(0.02)
+        # A fixed delay cannot serve here. A faster compiler turns the same
+        # workload into a shorter run. A check that kills nothing tests nothing.
+        # Wait for the first event, then give the run a moment to keep going.
+        # The check waits for the first trace line. The controller creates the
+        # trace file before any event.
+        deadline = time.time() + 5.0
+        while time.time() < deadline and process.poll() is None:
+            if trace_has_event(traces):
+                break
+            time.sleep(0.005)
+        time.sleep(0.02)
 
-    killed = 0
-    for pid in children_of(process.pid):
+        killed = 0
+        for pid in children_of(process.pid):
+            try:
+                os.kill(pid, signal.SIGKILL)
+                killed += 1
+            except ProcessLookupError:
+                pass
+        if killed == 0:
+            process.kill()
+            return "the runner found no worker to kill"
+
         try:
-            os.kill(pid, signal.SIGKILL)
-            killed += 1
-        except ProcessLookupError:
-            pass
-    if killed == 0:
-        process.kill()
-        return "the runner found no worker to kill"
+            stdout, stderr = process.communicate(timeout=TIMEOUT)
+        except subprocess.TimeoutExpired:
+            os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+            stdout, stderr = process.communicate(timeout=10)
+            return "the controller did not exit after a worker was killed"
 
-    try:
-        stdout, stderr = process.communicate(timeout=TIMEOUT)
-    except subprocess.TimeoutExpired:
-        os.killpg(os.getpgid(process.pid), signal.SIGKILL)
-        stdout, stderr = process.communicate(timeout=10)
-        return "the controller did not exit after a worker was killed"
-
-    problems = []
-    if process.returncode != 70:
-        problems.append(f"exit code: expected 70, got {process.returncode}")
-    if "signal 9" not in stderr:
-        problems.append(f"stderr does not name the signal: '{stderr.strip()}'")
-    if "result faulted" not in stdout:
-        problems.append("the report does not end in 'result faulted'")
-    time.sleep(0.05)
-    survivors = processes_named(PROCESS_NAME)
-    if survivors:
-        problems.append(f"{len(survivors)} process(es) survived the fault")
-        kill_leftovers()
-    return "; ".join(problems)
+        problems = []
+        if process.returncode != 70:
+            problems.append(f"exit code: expected 70, got {process.returncode}")
+        if "signal 9" not in stderr:
+            problems.append(f"stderr does not name the signal: '{stderr.strip()}'")
+        if "result faulted" not in stdout:
+            problems.append("the report does not end in 'result faulted'")
+        time.sleep(0.05)
+        survivors = processes_named(PROCESS_NAME)
+        if survivors:
+            problems.append(f"{len(survivors)} process(es) survived the fault")
+            kill_leftovers()
+        return "; ".join(problems)
 
 
 def check_unrelated_process(work):
     """A process the controller did not fork is still alive after a run."""
-    bystander = subprocess.Popen(["sleep", "4"], start_new_session=True)
-    try:
-        time.sleep(0.1)
-        if bystander.poll() is not None:
-            return "the bystander exited before the run"
-        stdout, stderr, code = run(
-            ["./run", "--policy", "stcf", "--trace-dir", str(work / "traces-bystander"),
-             "cases/normal/stcf_simultaneous.work"], work)
-        if code != 0:
-            return f"the run failed: exit {code}, stderr '{stderr.strip()}'"
-        if bystander.poll() is not None:
-            return "the controller signalled a process it did not fork"
-        return ""
-    finally:
-        bystander.kill()
-        bystander.wait(timeout=10)
+    with tempfile.TemporaryDirectory(prefix="ps1-bystander-") as scratch:
+        traces = Path(scratch) / "traces-bystander"
+        bystander = subprocess.Popen(["sleep", "4"], start_new_session=True)
+        try:
+            time.sleep(0.1)
+            if bystander.poll() is not None:
+                return "the bystander exited before the run"
+            stdout, stderr, code = run(
+                ["./run", "--policy", "stcf", "--trace-dir", str(traces),
+                 "cases/normal/stcf_simultaneous.work"], work)
+            if code != 0:
+                return f"the run failed: exit {code}, stderr '{stderr.strip()}'"
+            if bystander.poll() is not None:
+                return "the controller signalled a process it did not fork"
+            return ""
+        finally:
+            bystander.kill()
+            bystander.wait(timeout=10)
 
 
 def load_checker(work):
