@@ -31,7 +31,8 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
        See "Its Loop" in the manual. */
 
     /* TODO: Fork every worker before the first dispatch.
-       In the child, close the other workers' progress descriptors.
+       In the child, close the other workers' progress descriptors and this
+       worker's pipe read end.
        Point descriptor 1 at the progress pipe with dup2, then close the
        write end it copies. The worker writes its ticks to descriptor 1.
        Then replace the child with execvp. Pass ps1_self, "--worker", the

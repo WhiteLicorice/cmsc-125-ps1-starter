@@ -27,8 +27,8 @@ void ps1_worker_main(const ps1_workload *wl, size_t index)
        See "One Tick Is One Piece of Work" in the manual. */
 
     /* TODO: Write one byte on standard output for each finished tick.
-       Descriptor 1 is the progress pipe. Write with write, because the pipe
-       holds a byte in a stdio buffer and delays it.
+       Descriptor 1 is the progress pipe. Write with write, because printf
+       buffers the byte when descriptor 1 is a pipe, and it arrives late.
        Retry the write when a signal interrupts it.
        See "One Tick Is One Piece of Work" in the manual. */
 

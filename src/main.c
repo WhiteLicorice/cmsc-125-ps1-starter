@@ -6,7 +6,7 @@
  *
  *   0    every worker finished and every reference was released
  *   65   the command line or the workload file was refused
- *   70   a worker failed, or a system call did
+ *   70   a worker failed, a system call did, or the worker image could not start
  *   130  SIGINT ended the run
  */
 #include "ps1.h"
