@@ -173,17 +173,28 @@ ps1_status ps1_trace_event(ps1_trace *t, size_t index, ps1_event event,
 void ps1_trace_close(ps1_trace *t);
 
 /* ------------------------------------------------------------------ */
+/* src/main.c: the given program entry point. Do not edit.             */
+/* ------------------------------------------------------------------ */
+
+/*
+ * The path the program was started with, from its argv[0]. A worker passes it
+ * to execvp as the program to run, so the worker is the same binary in worker
+ * mode.
+ */
+extern const char *ps1_self;
+
+/* ------------------------------------------------------------------ */
 /* src/worker.c: yours. The child side of the fork.                    */
 /* ------------------------------------------------------------------ */
 
 /*
- * Runs in the child forked by the controller. `index` is the worker's position
- * in the workload. The one descriptor is the worker's end of its progress
- * pipe, where it reports one byte per finished tick. This function never
- * returns: it leaves with exit status 0 when the burst is complete, or with
- * status 9 after a crash tick.
+ * Runs in the worker process. `index` is the worker's position in the
+ * workload. The worker reports one byte per finished tick on standard output,
+ * which the controller points at the progress pipe before the worker starts.
+ * This function never returns: it leaves with exit status 0 when the burst is
+ * complete, or with status 9 after a crash tick.
  */
-void ps1_worker_main(const ps1_workload *wl, size_t index, int progress_fd);
+void ps1_worker_main(const ps1_workload *wl, size_t index);
 
 /* ------------------------------------------------------------------ */
 /* src/controller.c: yours. The scheduler.                             */

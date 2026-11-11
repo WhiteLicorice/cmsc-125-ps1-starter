@@ -2,14 +2,15 @@
  * worker.c: yours. The child side of the fork.
  *
  * A worker parks itself at birth. After that it computes freely: one tick of
- * work, one byte on its progress pipe, and on, without asking the controller
- * for anything. See "The Controller and Its Workers" in the manual.
+ * work, one byte on its standard output, and on, without asking the controller
+ * for anything. The controller points standard output at the progress pipe
+ * before the worker starts. See "The Controller and Its Workers" in the manual.
  */
 #include "ps1.h"
 
 #include <unistd.h>
 
-void ps1_worker_main(const ps1_workload *wl, size_t index, int progress_fd)
+void ps1_worker_main(const ps1_workload *wl, size_t index)
 {
     /* TODO: Park the worker at birth with raise(SIGSTOP).
        No tick runs before the controller dispatches the worker.
@@ -25,7 +26,9 @@ void ps1_worker_main(const ps1_workload *wl, size_t index, int progress_fd)
        A seed that reaches no output lets the compiler delete the loop.
        See "One Tick Is One Piece of Work" in the manual. */
 
-    /* TODO: Write one byte on the progress pipe for each finished tick.
+    /* TODO: Write one byte on standard output for each finished tick.
+       Descriptor 1 is the progress pipe. Write with write, because the pipe
+       holds a byte in a stdio buffer and delays it.
        Retry the write when a signal interrupts it.
        See "One Tick Is One Piece of Work" in the manual. */
 
@@ -39,7 +42,6 @@ void ps1_worker_main(const ps1_workload *wl, size_t index, int progress_fd)
 
     (void)wl;
     (void)index;
-    (void)progress_fd;
 
     _exit(1);
 }

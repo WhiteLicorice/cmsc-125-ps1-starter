@@ -32,8 +32,10 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
 
     /* TODO: Fork every worker before the first dispatch.
        In the child, close the other workers' progress descriptors.
+       Point descriptor 1 at the progress pipe with dup2, then close the
+       write end it copies. The worker writes its ticks to descriptor 1.
        cases/normal/max_workers.work
-       See "Stopping and Continuing" in the manual. */
+       See "The Progress Pipe" and "Stopping and Continuing" in the manual. */
 
     /* TODO: Wait for a worker's birth stop before you dispatch that worker.
        A SIGCONT sent before the worker's own stop is lost. The run hangs.
