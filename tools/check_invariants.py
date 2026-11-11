@@ -187,26 +187,28 @@ def check_policy_validity(work):
     nothing about a third. This check replays each run from its own traces with
     the published runner and confirms the decisions that run's policy made.
     """
-    workload = work / "reproducible.work"
-    workload.write_text("A 0 100\nB 0 150\n", encoding="utf-8")
-    checker = load_checker(work)
-    workers = [w for w in checker.parse_work(workload) if w is not None]
-    policy = "rr"
-    quantum = 50
+    with tempfile.TemporaryDirectory(prefix="ps1-policy-") as scratch:
+        scratch = Path(scratch)
+        workload = scratch / "reproducible.work"
+        workload.write_text("A 0 100\nB 0 150\n", encoding="utf-8")
+        checker = load_checker(work)
+        workers = [w for w in checker.parse_work(workload) if w is not None]
+        policy = "rr"
+        quantum = 50
 
-    for index, target in enumerate((work / "traces-repro-1",
-                                    work / "traces-repro-2"), 1):
-        stdout, stderr, code = run(
-            ["./run", "--policy", policy, "--quantum", str(quantum),
-             "--trace-dir", str(target), "reproducible.work"], work)
-        if code != 0:
-            return f"run {index} failed: exit {code}, stderr '{stderr.strip()}'"
-        problems = []
-        traces = checker.load_traces(target, workers, problems)
-        if traces:
-            checker.replay(workers, policy, quantum, traces, problems)
-        if problems:
-            return f"run {index} does not follow the policy: " + "; ".join(problems)
+        for index, target in enumerate((scratch / "traces-repro-1",
+                                        scratch / "traces-repro-2"), 1):
+            stdout, stderr, code = run(
+                ["./run", "--policy", policy, "--quantum", str(quantum),
+                 "--trace-dir", str(target), str(workload)], work)
+            if code != 0:
+                return f"run {index} failed: exit {code}, stderr '{stderr.strip()}'"
+            problems = []
+            traces = checker.load_traces(target, workers, problems)
+            if traces:
+                checker.replay(workers, policy, quantum, traces, problems)
+            if problems:
+                return f"run {index} does not follow the policy: " + "; ".join(problems)
     return ""
 
 
