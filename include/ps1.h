@@ -59,7 +59,7 @@ typedef enum {
 typedef enum {
     PS1_OK = 0,           /* 0   every worker finished */
     PS1_ERR_REJECTED,     /* 65  the command line or the workload was refused */
-    PS1_ERR_FAULT,        /* 70  a worker failed, or a system call did */
+    PS1_ERR_FAULT,        /* 70  a worker failed, a system call did, or the worker image could not start */
     PS1_ERR_INTERRUPTED   /* 130 SIGINT ended the run */
 } ps1_status;
 
