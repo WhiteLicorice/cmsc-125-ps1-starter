@@ -1,0 +1,19 @@
+case sjf-arrivals
+policy SJF
+workload A:0/120 B:10/60 C:10/30
+
+schedule
+  0-120 A
+  120-150 C
+  150-210 B
+
+gantt (1 column = 10 time units)
+  AAAAAAAAAAAACCCBBBBBB
+
+metrics
+  job arrival burst completion turnaround response
+  A   0       120   120        120        0
+  B   10      60    210        200        140
+  C   10      30    150        140        110
+  avg                          153.33     83.33
+

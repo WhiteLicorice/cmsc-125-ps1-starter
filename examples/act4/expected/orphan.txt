@@ -1,0 +1,2 @@
+parent: reaped the middle child, exit status 0
+parent: the grandchild observed a new parent pid: yes

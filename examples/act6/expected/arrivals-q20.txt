@@ -1,0 +1,20 @@
+case: arrivals-q20
+quantum: 20
+schedule:
+  0-20 A
+  20-40 B
+  40-60 C
+  60-80 A
+  80-90 D
+  90-100 B
+metrics (ticks):
+  pid  at  bt  ft  tt  rt
+  A      0  40  80  80   0
+  B     10  30 100  90  10
+  C     20  20  60  40  20
+  D     30  10  90  60  50
+  average turnaround time: 67.50
+  average response time: 20.00
+  cpu ticks: 100, makespan: 100
+  cpu utilization: 100.0%
+

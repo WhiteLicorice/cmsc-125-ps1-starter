@@ -1,0 +1,16 @@
+case: equal-q5
+quantum: 5
+schedule:
+  0-5 A
+  5-10 B
+  10-15 C
+metrics (ticks):
+  pid  at  bt  ft  tt  rt
+  A      0   5   5   5   0
+  B      0   5  10  10   5
+  C      0   5  15  15  10
+  average turnaround time: 10.00
+  average response time: 5.00
+  cpu ticks: 15, makespan: 15
+  cpu utilization: 100.0%
+

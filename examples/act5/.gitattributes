@@ -1,0 +1,5 @@
+# The expected outputs are compared byte for byte with the simulator output,
+# and the simulator writes LF. Keep every file here LF on every platform, so a
+# Windows checkout run under WSL still matches. This mirrors the LF rule for
+# shell scripts in the repository root .gitattributes.
+* text eol=lf

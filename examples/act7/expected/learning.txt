@@ -1,0 +1,20 @@
+case: learning
+model: queues 3, slice 2/4/8 ms, allotment 4/8 ms, boost off, accounting allotment, no switch cost
+jobs: A(arr 0 cpu 20) B(arr 5 cpu 3) C(arr 6 cpu 3)
+
+schedule
+  0-4      A    Q1
+  4-5      A    Q2
+  5-7      B    Q1
+  7-9      C    Q1
+  9-10     B    Q1
+  10-11    C    Q1
+  11-18    A    Q2
+  18-26    A    Q3
+
+metrics
+job     arr  finish  turnaround  response
+A         0      26          26         0
+B         5      10           5         0
+C         6      11           5         1
+average                    12.00      0.33

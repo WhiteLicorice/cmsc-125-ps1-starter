@@ -1,0 +1,6 @@
+# Keep every file in this folder LF on every platform.
+#
+# The examples build inside Ubuntu under Windows Subsystem for Linux. This
+# repository has core.autocrlf on, so a Windows checkout would write CRLF into
+# a Makefile. Make then reads a carriage return as part of the recipe.
+* text eol=lf

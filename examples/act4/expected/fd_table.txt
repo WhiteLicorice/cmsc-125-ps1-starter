@@ -1,0 +1,7 @@
+descriptor 0 is open at start
+descriptor 1 is open at start
+descriptor 2 is open at start
+first open returned 3
+open after close returned 3
+open after close(1) returned 1
+stdout restored

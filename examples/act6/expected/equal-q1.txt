@@ -1,0 +1,28 @@
+case: equal-q1
+quantum: 1
+schedule:
+  0-1 A
+  1-2 B
+  2-3 C
+  3-4 A
+  4-5 B
+  5-6 C
+  6-7 A
+  7-8 B
+  8-9 C
+  9-10 A
+  10-11 B
+  11-12 C
+  12-13 A
+  13-14 B
+  14-15 C
+metrics (ticks):
+  pid  at  bt  ft  tt  rt
+  A      0   5  13  13   0
+  B      0   5  14  14   1
+  C      0   5  15  15   2
+  average turnaround time: 14.00
+  average response time: 1.00
+  cpu ticks: 15, makespan: 15
+  cpu utilization: 100.0%
+

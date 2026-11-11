@@ -1,0 +1,2 @@
+# Build output. The documented make target writes this in this directory.
+/sim

@@ -1,0 +1,14 @@
+# Build outputs. The documented make targets write these in this directory.
+fd_table
+redirect
+pipe_basic
+pipe_eof
+zombie
+orphan
+signal_kill
+
+# Files the examples write at run time. The leading slash keeps these rules at
+# the top level of this folder, so they never match a tracked file such as
+# expected/fd_table.txt.
+/fd_table.txt
+/redirect.out

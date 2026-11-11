@@ -1,0 +1,15 @@
+case: gaming-old
+model: queues 3, slice 2/4/8 ms, allotment 4/8 ms, boost off, accounting slice, no switch cost
+jobs: G(arr 0 cpu 20 yield 1) H(arr 0 cpu 4)
+
+schedule
+  0-1      G    Q1
+  1-3      H    Q1
+  3-22     G    Q1
+  22-24    H    Q2
+
+metrics
+job     arr  finish  turnaround  response
+G         0      22          22         0
+H         0      24          24         1
+average                    23.00      0.50

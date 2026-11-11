@@ -1,0 +1,2 @@
+terminal: before the redirect
+redirect.out holds: file: after the redirect

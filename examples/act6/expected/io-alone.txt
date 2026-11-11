@@ -1,0 +1,21 @@
+case: io-alone
+quantum: 10
+schedule:
+  0-10 A
+  10-20 idle
+  20-30 A
+  30-40 idle
+  40-50 A
+  50-60 idle
+  60-70 A
+  70-80 idle
+  80-90 A
+  90-100 idle
+metrics (ticks):
+  pid  at  bt  ft  tt  rt
+  A      0  50 100 100   0
+  average turnaround time: 100.00
+  average response time: 0.00
+  cpu ticks: 50, makespan: 100
+  cpu utilization: 50.0%
+

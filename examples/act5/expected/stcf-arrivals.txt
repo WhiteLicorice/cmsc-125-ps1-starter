@@ -1,0 +1,20 @@
+case stcf-arrivals
+policy STCF
+workload A:0/120 B:10/60 C:10/30
+
+schedule
+  0-10 A
+  10-40 C
+  40-100 B
+  100-210 A
+
+gantt (1 column = 10 time units)
+  ACCCBBBBBBAAAAAAAAAAA
+
+metrics
+  job arrival burst completion turnaround response
+  A   0       120   210        210        0
+  B   10      60    100        90         30
+  C   10      30    40         30         0
+  avg                          110.00     10.00
+

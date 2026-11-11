@@ -1,0 +1,6 @@
+# Build output. The documented make targets write this in this directory.
+mlfq
+
+# The comparison file that `make check` writes. The leading slash keeps the
+# rule at the top level of this folder, so it never matches a tracked file.
+/mlfq.tmp.out

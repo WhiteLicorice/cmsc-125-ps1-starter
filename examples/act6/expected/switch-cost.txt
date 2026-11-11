@@ -1,0 +1,9 @@
+case: switch-cost
+workload: six jobs, 20 ticks of CPU work each, all arrive at tick 0
+switch cost: 1 tick
+  quantum  dispatches  switches  cpu  switch  total  overhead
+  1        120         119       120  119     239    49.8%
+  5        24          23        120  23      143    16.1%
+  10       12          11        120  11      131    8.4%
+  20       6           5         120  5       125    4.0%
+

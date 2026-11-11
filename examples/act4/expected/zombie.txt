@@ -1,0 +1,4 @@
+parent: /proc state before wait is Z
+parent: waitpid reaped the pid it forked: yes
+parent: WIFEXITED 1, WEXITSTATUS 7
+parent: /proc state after wait is gone

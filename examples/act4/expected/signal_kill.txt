@@ -1,0 +1,5 @@
+parent: child announced it is about to pause
+parent: sent SIGTERM
+parent: stopped by a signal: yes
+parent: terminating signal number: 15
+parent: SIGTERM number: 15

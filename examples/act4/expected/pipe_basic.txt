@@ -1,0 +1,6 @@
+parent: pipe read end is 3, write end is 4
+child: read 22 bytes
+child: body "read,read|write,write|"
+child: read returned 0 after every write end closed
+parent: reaped the child, exit status 0
+parent: child pid matched: yes

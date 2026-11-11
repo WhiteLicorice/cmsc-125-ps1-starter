@@ -1,0 +1,4 @@
+parent: read 8 bytes "one,one|"
+parent: read 8 more bytes "two,two|"
+parent: read after the holder closes returns 0
+parent: reaped the middle child, exit status 0

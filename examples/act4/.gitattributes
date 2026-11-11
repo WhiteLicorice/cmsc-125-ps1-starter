@@ -1,0 +1,8 @@
+# Keep this folder LF on every platform.
+#
+# The root .gitattributes pins *.sh only. This repository has core.autocrlf on,
+# so a Windows checkout writes CRLF into the Makefile and into expected/*.txt.
+# Make then reads a carriage return as part of the recipe, and the exact-output
+# comparison sees a trailing carriage return on every line.
+
+* text eol=lf

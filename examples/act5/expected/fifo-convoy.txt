@@ -1,0 +1,19 @@
+case fifo-convoy
+policy FIFO
+workload A:0/120 B:0/60 C:0/30
+
+schedule
+  0-120 A
+  120-180 B
+  180-210 C
+
+gantt (1 column = 10 time units)
+  AAAAAAAAAAAABBBBBBCCC
+
+metrics
+  job arrival burst completion turnaround response
+  A   0       120   120        120        0
+  B   0       60    180        180        120
+  C   0       30    210        210        180
+  avg                          170.00     100.00
+
