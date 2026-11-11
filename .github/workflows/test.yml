@@ -19,11 +19,15 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # Ubuntu needs the compiler and make. The macOS runner carries both, and
-      # its Python 3 comes with the Xcode command line tools.
+      # The Ubuntu and macOS runners carry the compiler and make. This step
+      # installs them on Ubuntu only when the runner image lacks one of them.
       - name: Install the build tools (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y build-essential make
+        run: |
+          if ! command -v cc >/dev/null || ! command -v make >/dev/null; then
+            sudo apt-get update && sudo apt-get install -y build-essential make
+          fi
+        shell: bash
 
       - name: Report the tools this run grades with
         run: |
