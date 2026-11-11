@@ -3,7 +3,8 @@
 
 This C17 project is the starter for the CMSC 125 Problem Set 1 controller. The
 controller forks worker processes, decides which worker runs, and preempts the
-running one with `SIGSTOP`. Each worker reports its ticks on a pipe and keeps
+running one with `SIGSTOP`. Each child starts the same program again in worker
+mode, with `execvp`, and reports its ticks on descriptor 1. The worker keeps
 computing until the stop lands, so a slice runs a tick or two past its quantum.
 This README gives the repository map, the commands, the starting state, and the
 three host routes.
@@ -39,7 +40,7 @@ rule these files follow.
 
 ```
 include/ps1.h       fixed interface: limits, codes, structures, prototypes
-src/main.c          complete: the command line and the exit codes
+src/main.c          complete: the command line, the worker mode, and the exit codes
 src/clock.c         complete: the CLOCK_MONOTONIC reading
 src/trace.c         complete: the per-worker trace writer
 src/workload.c      yours: read and validate a workload file
@@ -77,7 +78,7 @@ submit.
 |---|---|
 | 0 | Every worker finished its burst. |
 | 65 | The command line or the workload file was refused. |
-| 70 | A worker failed before its burst was done, or a system call did. |
+| 70 | A worker failed before its burst was done, a system call did, or the worker image could not start. |
 | 130 | `SIGINT` ended the run. The report is partial. |
 
 ## The First Run

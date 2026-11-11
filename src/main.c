@@ -16,6 +16,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* The path the program was started with. A worker passes it to execvp. */
+const char *ps1_self = NULL;
+
 static void usage(void)
 {
     fprintf(stderr,
@@ -57,6 +60,41 @@ static int set_policy(const char *word, ps1_options *opts)
     return 0;
 }
 
+/*
+ * Runs one worker in worker mode. The controller execs this same program with
+ * `--worker <index> <workload path>`, so the worker is a separate program
+ * image. The workload is loaded again here, because exec discarded the
+ * controller's copy. The controller points standard output at the progress
+ * pipe before the exec.
+ */
+static int run_worker(const char *index_text, const char *path)
+{
+    ps1_workload workload;
+    ps1_diag diag;
+    ps1_status status;
+    char *end = NULL;
+    long index;
+
+    errno = 0;
+    index = strtol(index_text, &end, 10);
+    if (errno != 0 || end == index_text || *end != '\0' || index < 0) {
+        fprintf(stderr, "ps1: worker index '%s' is not a number\n", index_text);
+        return PS1_EXIT_REJECTED;
+    }
+    memset(&diag, 0, sizeof diag);
+    status = ps1_workload_load(path, &workload, &diag);
+    if (status != PS1_OK) {
+        fprintf(stderr, "%s\n", diag.text);
+        return PS1_EXIT_REJECTED;
+    }
+    if ((size_t)index >= workload.count) {
+        fprintf(stderr, "ps1: worker index %ld is beyond the workload\n", index);
+        return PS1_EXIT_REJECTED;
+    }
+    ps1_worker_main(&workload, (size_t)index);
+    return PS1_EXIT_OK;
+}
+
 int main(int argc, char **argv)
 {
     ps1_options opts;
@@ -70,6 +108,15 @@ int main(int argc, char **argv)
 
     memset(&opts, 0, sizeof opts);
     memset(&diag, 0, sizeof diag);
+
+    ps1_self = argv[0];
+    if (argc >= 2 && strcmp(argv[1], "--worker") == 0) {
+        if (argc != 4) {
+            fprintf(stderr, "ps1: --worker needs a worker index and a workload\n");
+            return PS1_EXIT_REJECTED;
+        }
+        return run_worker(argv[2], argv[3]);
+    }
 
     for (i = 1; i < argc; i++) {
         const char *arg = argv[i];
