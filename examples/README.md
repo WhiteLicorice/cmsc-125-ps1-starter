@@ -5,8 +5,8 @@ This folder holds the worked examples for the activities that precede Problem
 Set 1, Processes and Preemptive Scheduling. Each activity has its own folder.
 Each folder holds its own `make` and `make check`.
 
-These examples are not graded. They are not one of the stages of the problem
-set. Use them to see the mechanism before you write the code.
+These examples are not graded. They are not part of the work you submit. Use
+them to see the mechanism before you write the code.
 
 | Folder | Activity |
 |:--|:--|

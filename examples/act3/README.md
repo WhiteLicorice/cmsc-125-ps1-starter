@@ -1,5 +1,5 @@
 <!--no-pdf-->
-# act3 examples
+# Activity 3 Examples
 
 These three programs show three kernel ideas at user level: the trap, the cost
 of a trap, and a timer that interrupts a running loop. They are analogies. They
