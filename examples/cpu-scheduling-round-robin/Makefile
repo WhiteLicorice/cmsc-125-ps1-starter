@@ -1,4 +1,4 @@
-# CMSC 125 Activity 6 examples.
+# CMSC 125 round-robin scheduling examples.
 #
 #   make          build the simulator
 #   make check    run every case and compare its output

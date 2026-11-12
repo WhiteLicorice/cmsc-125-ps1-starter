@@ -4,7 +4,7 @@
  * A deterministic multi-level feedback queue scheduler.
  *
  * The program prints one workload's schedule and its metrics. The model is
- * the one the activity defines:
+ * the one the manual's examples state:
  *
  *   - The time unit is 1 ms.
  *   - The scheduler has three queues, with Q1 at the top and Q3 at the bottom.
@@ -19,9 +19,9 @@
  *   - A boost moves every unfinished job to Q1 at the end of each period.
  *   - Switching costs no time. The program prints each idle millisecond.
  *
- * The accounting option selects the demotion rule. "allotment" is the rule
- * the activity settles on. "slice" is the earlier rule, which demotes a job
- * only when it uses a whole slice in one run.
+ * The accounting option selects the demotion rule. "allotment" is the settled
+ * rule. "slice" is the earlier rule, which demotes a job only when it uses a
+ * whole slice in one run.
  *
  * Build:
  *   cc -std=c11 -Wall -Wextra -Werror mlfq.c -o mlfq

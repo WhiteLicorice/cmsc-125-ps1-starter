@@ -1,8 +1,8 @@
 <!--no-pdf-->
-# Activity 7 Examples
+# Multilevel Feedback Queue Examples
 
 This folder holds one program. `mlfq.c` is a multilevel feedback queue
-scheduler. It implements the model the activity defines. It prints the
+scheduler. It implements one fixed model. It prints the
 schedule and the metrics for one workload. The program is deterministic. The
 same command prints the same output on every machine.
 
@@ -46,7 +46,7 @@ every case passes. It exits nonzero when a case fails.
 
 ## The Model
 
-The simulator implements the model below. The activity states the same model.
+The simulator implements the model below. Every case uses it.
 
 - The time unit is 1 ms. Every time below is a whole number of milliseconds.
 - Three queues hold the ready jobs. Q1 is the top queue and Q3 is the bottom
@@ -180,7 +180,7 @@ at 8 ms and then to Q3 at 16 ms. The other job now finishes at 6 ms instead of
 ### `boost-off`
 
 The run has a long job and three short jobs. The short jobs arrive at 4 ms,
-8 ms, and 12 ms. There is no boost.
+8 ms, and 12 ms. No boost runs.
 
     ./mlfq --case boost-off
 

@@ -1,7 +1,7 @@
 /*
  * schedsim.c
  *
- * A deterministic CPU-scheduling simulator for CMSC 125 activity 5.
+ * A deterministic CPU-scheduling simulator for CMSC 125.
  *
  * This file holds the model and the printer. The case list is linked in from
  * the build. One case is one policy on one workload. For each case the program

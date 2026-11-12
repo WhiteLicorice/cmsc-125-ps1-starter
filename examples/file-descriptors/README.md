@@ -1,5 +1,5 @@
 <!--no-pdf-->
-# Activity 4 Examples
+# File Descriptors, Pipes, and Process Control Examples
 
 These programs show the descriptor table, redirection, pipes, and process
 control. Each program is one C file with its own `main`.

@@ -1,7 +1,7 @@
 /*
  * sim_engine.c
  *
- * A round-robin schedule simulator for CMSC 125 Activity 6.
+ * A round-robin schedule simulator for CMSC 125.
  *
  * One job has an arrival time and a list of phases. A phase is either CPU
  * work or I/O work. The engine runs a round-robin scheduler over the jobs.

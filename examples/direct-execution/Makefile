@@ -1,4 +1,4 @@
-# Build and check the act3 examples.
+# Build and check the "Direct Execution, Traps, and Preemption" examples.
 #
 # This file is a user-level illustration of kernel mechanisms. The programs
 # show a trap, its cost, and a timer, at user level. They do not implement

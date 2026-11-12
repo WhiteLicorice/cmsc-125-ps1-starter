@@ -1,4 +1,4 @@
-# CMSC 125 Activity 7 examples.
+# CMSC 125 multilevel feedback queue examples.
 #
 #   make          build the simulator
 #   make check    build the simulator, run every case, and compare its output

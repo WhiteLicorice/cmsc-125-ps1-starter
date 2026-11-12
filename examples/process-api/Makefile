@@ -1,4 +1,4 @@
-# CMSC 125 act2 examples.
+# CMSC 125 "Processes and the Process API" examples.
 #
 #   make          build every example
 #   make check    build every example, run it, and compare the output

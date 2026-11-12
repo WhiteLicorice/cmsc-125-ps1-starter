@@ -1,8 +1,8 @@
 /*
  * demo_cases.c
  *
- * The student-facing case list for the CMSC 125 activity 5 simulator. Every
- * case here appears in the activity or its worked examples.
+ * The student-facing case list for the CPU-scheduling simulator. Every case
+ * here appears in the worked examples.
  *
  * See examples/README.md for the model and the case table.
  */

@@ -1,13 +1,13 @@
 <!--no-pdf-->
-# Activity 2 Examples
+# Processes and the Process API Examples
 
-This folder holds one C program per example that CMSC 125 Activity 2 uses.
+This folder holds one C program per example in "Processes and the Process API" in Unit 1.
 Each program shows one fact about `fork`. Run the checks on Linux. On Windows,
 run them inside Ubuntu under WSL2. On macOS, run them inside the Ubuntu virtual
 machine from Part 4 of the b1 bootcamp, which uses UTM and Ubuntu 24.04 Server.
 Build every program inside that guest. Run every command inside that guest.
 
-## Build and check
+## Build and Check
 
 ```bash
 make check
@@ -25,7 +25,7 @@ Run `make clean` to remove the programs and the temporary comparison files.
 The buffering check needs `script` from util-linux. It runs that program once
 on a terminal and twice with the output redirected.
 
-## The programs
+## The Programs
 
 | Program | Command | Expected output or property |
 |---|---|---|
@@ -38,7 +38,7 @@ on a terminal and twice with the output redirected.
 
 The pid values change on every run. Only the relation between them is fixed.
 
-## The buffering program
+## The Buffering Program
 
 `buffering.c` prints one line before it calls `fork`. The number of lines
 depends on where the standard output goes.
@@ -58,12 +58,12 @@ at exit.
 The word `flush` forces the program to write the line before `fork` returns. Both modes print
 three lines on a terminal.
 
-## The exit status of a check
+## The Exit Status of a Check
 
 `make check` reports a failure in two places. The first is the line for the
 program. The second is the exit status of `make`. A broken expectation for
 `fork_copy.c` prints this line and exits 2.
 
-```text
+```
 FAIL fork_copy: the parent did not keep its own copy of x
 ```

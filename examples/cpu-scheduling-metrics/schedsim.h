@@ -1,7 +1,7 @@
 /*
  * schedsim.h
  *
- * Shared declarations for the CMSC 125 activity 5 scheduling simulator.
+ * Shared declarations for the CMSC 125 scheduling simulator.
  *
  * The program that links schedsim.c supplies the case list. The student-facing
  * build supplies the demo and worked-example cases in demo_cases.c. Another

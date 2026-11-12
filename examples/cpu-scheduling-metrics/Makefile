@@ -1,4 +1,4 @@
-# Build and check the act5 examples.
+# Build and check the "CPU Scheduling and Multilevel Feedback Queues" simulator.
 #
 # schedsim.c holds the model and the printer. demo_cases.c holds the
 # student-facing cases. Each case prints one schedule and its metrics. make

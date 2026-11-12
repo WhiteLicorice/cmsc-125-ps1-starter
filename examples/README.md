@@ -1,26 +1,29 @@
-<!--no-pdf-->
-# Activity Examples
+# Worked Examples
 
-This folder holds the worked examples for the activities that precede Problem
-Set 1, Processes and Preemptive Scheduling. Each activity has its own folder.
-Each folder holds its own `make` and `make check`.
+This folder holds worked examples for four subtopics in Unit 1. Each folder is
+a runnable program with its own `make` and `make check`.
 
-These examples are not graded. They are not part of the work you submit. Use
+These examples aren't graded. They aren't part of the work you submit. Use
 them to see the mechanism before you write the code.
 
-| Folder | Activity |
+| Folder | Subtopic |
 |:--|:--|
-| `act2` | One Program Becomes Two |
-| `act3` | Direct Execution, Traps, and Preemption |
-| `act4` | Wiring Processes Together |
-| `act5` | Scheduling Metrics, FIFO, SJF, and STCF |
-| `act6` | Round-Robin, Response Time, and the Time Slice |
-| `act7` | The Multilevel Feedback Queue |
+| `process-api` | "Processes and the Process API" |
+| `direct-execution` | "Direct Execution, Traps, and Preemption" |
+| `file-descriptors` | "File Descriptors, Pipes, and Process Control" |
+| `cpu-scheduling-metrics` | "CPU Scheduling and Multilevel Feedback Queues", response time and the three policies |
+| `cpu-scheduling-round-robin` | "CPU Scheduling and Multilevel Feedback Queues", the quantum and taking turns |
+| `cpu-scheduling-mlfq` | "CPU Scheduling and Multilevel Feedback Queues", the multilevel feedback queue |
+
+Three folders share one subtopic because that subtopic carries three separate
+models. `cpu-scheduling-metrics` comes first, since it defines response time,
+turnaround time, and the policies the other two build on. Read its `README.md`
+before either of them.
 
 Build and check one folder:
 
 ```bash
-cd examples/act2
+cd examples/process-api
 make
 make check
 make clean

@@ -1,5 +1,5 @@
 <!--no-pdf-->
-# Activity 5 Examples
+# CPU Scheduling and Multilevel Feedback Queues Examples
 
 `schedsim.c` is a deterministic CPU-scheduling simulator. `demo_cases.c` holds
 one list of cases. One case is one scheduling policy on one workload. The
@@ -12,7 +12,7 @@ This folder holds the seven worked-example cases only.
 
 ## The Model
 
-The simulator uses one fixed model. The activity grades with the same model.
+The simulator uses one fixed model. Every case below exercises that model.
 
 - The time unit is one tick. Every arrival time and every burst time is a whole
   number of ticks.
@@ -28,7 +28,7 @@ The simulator uses one fixed model. The activity grades with the same model.
   continues.
 - FIFO and SJF are non-preemptive. A job that starts runs to completion.
 - STCF is preemptive. It rechecks the choice at every arrival.
-- A switch costs no time. The activity ignores the context-switch cost.
+- A switch costs no time. The model leaves out the context-switch cost.
 - Completion time is the time the job finishes.
 - Turnaround time is the completion time minus the arrival time.
 - Response time is the first run time minus the arrival time.

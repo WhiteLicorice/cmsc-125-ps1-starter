@@ -1,5 +1,5 @@
 <!--no-pdf-->
-# Activity 6 Examples
+# Round-Robin Examples
 
 `sim.c` is a round-robin scheduler simulator. It runs one workload and prints
 the schedule, the finish time, the turnaround time, the response time, and the

@@ -2,12 +2,12 @@
 # CMSC 125 Problem Set 1 Starter
 
 This C17 project is the starter for the CMSC 125 Problem Set 1 controller. The
-controller forks worker processes, decides which worker runs, and preempts the
-running one with `SIGSTOP`. Each child starts the same program again in worker
-mode, with `execvp`, and reports its ticks on descriptor 1. The worker keeps
-computing until the stop lands, so a slice runs a tick or two past its quantum.
-This README gives the repository map, the commands, the starting state, and the
-three host routes.
+controller forks worker processes and decides which one runs. It preempts the
+running worker with `SIGSTOP`. Each child starts the same program again in
+worker mode, with `execvp`, and reports its ticks on descriptor 1. The worker
+keeps computing until the stop lands. A slice then runs a tick or two past its
+quantum. This README gives the repository map, the commands, the starting
+state, and the three host routes.
 
 This project runs on Linux, on macOS, and on Windows through WSL2 Ubuntu. The
 controller uses POSIX calls only.
@@ -49,6 +49,7 @@ src/worker.c        yours: the CPU-bound child
 src/report.c        yours: response time, turnaround time, averages
 cases/              the complete public corpus
 student-cases/      the one boundary or failure case of your own
+examples/           the worked examples, named by subtopic
 tools/check_cases.py  the runner that grades the corpus
 ANALYSIS.md         the joint analysis that you create
 Makefile run check.sh  the run contract
@@ -84,11 +85,11 @@ submit.
 ## The First Run
 
 A fresh clone builds without warnings. It passes 8 of the 57 cases and exits 1. The same run reports no passing invariant
-check. The failed-fork check gives the real reason: `workload.c` is not
+check. The failed-fork check gives the cause: `workload.c` isn't
 implemented, so the run fails at exit 65 before any fork is refused. A check
 reports a skip instead in two cases. With no load line it skips, whatever the
 exit code, because nothing could interpose a `fork`. With a load line and exit 0
-it skips too, since it cannot test failure handling.
+it skips too, since it can't test failure handling.
 The 8 passing cases test nothing you wrote. They check command-line refusals.
 `src/main.c` is complete, so it refuses a bad option before your code runs.
 
@@ -123,7 +124,7 @@ Check the Python 3 version. macOS ships Python 3 with the command line tools.
 python3 --version
 ```
 
-### Windows through WSL2 Ubuntu
+### Windows Through WSL2 Ubuntu
 
 Install WSL2 with Ubuntu from PowerShell.
 
@@ -139,7 +140,7 @@ sudo apt install -y build-essential make python3
 ```
 
 Work in the Ubuntu file system under your home directory. A checkout
-under `/mnt/c` works but it is slower, and file permissions there behave
+under `/mnt/c` works but it's slower, and file permissions there behave
 differently.
 
 ### Check

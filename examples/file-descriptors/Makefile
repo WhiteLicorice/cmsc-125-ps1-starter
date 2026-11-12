@@ -1,4 +1,4 @@
-# CMSC 125 Activity 4 examples.
+# CMSC 125 "File Descriptors, Pipes, and Process Control" examples.
 #
 #   make          build every example
 #   make check    build every example, run it, and compare its output

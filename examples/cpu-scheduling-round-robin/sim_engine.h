@@ -1,7 +1,7 @@
 /*
  * sim_engine.h
  *
- * The scheduler engine for the CMSC 125 Activity 6 simulator.
+ * The scheduler engine for the CMSC 125 round-robin simulator.
  *
  * A program describes a workload as a list of scenarios, then calls
  * sim_print_case on each one. See sim_engine.c for the model.
