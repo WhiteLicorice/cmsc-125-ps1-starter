@@ -70,8 +70,8 @@ files to `DIR` and defaults to `traces`.
 
 `check.sh` is the complete public automated check. No hidden suite exists. Read
 `tools/check_cases.py` before you trust a green run. The rubric separately
-assesses the joint analysis, the collaboration history, and the traces you
-submit.
+assesses Implementation Correctness, Structure and Cleanup, Joint Analysis, and
+Collaboration.
 
 ## Exit Codes
 
