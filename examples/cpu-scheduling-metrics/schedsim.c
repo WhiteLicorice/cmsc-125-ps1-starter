@@ -6,7 +6,7 @@
  * This file holds the model and the printer. The case list is linked in from
  * the build. One case is one policy on one workload. For each case the program
  * prints the schedule, a Gantt row, and the per-job metrics. The model is
- * fixed. examples/README.md states it.
+ * fixed. README.md in this folder states it.
  *
  * The student-facing build links demo_cases.c:
  *   cc -std=c11 -Wall -Wextra -Werror -o schedsim schedsim.c demo_cases.c

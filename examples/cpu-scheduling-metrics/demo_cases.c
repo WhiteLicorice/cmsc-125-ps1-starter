@@ -4,7 +4,7 @@
  * The student-facing case list for the CPU-scheduling simulator. Every case
  * here appears in the worked examples.
  *
- * See examples/README.md for the model and the case table.
+ * See README.md in this folder for the model and the case table.
  */
 
 #include "schedsim.h"

@@ -16,7 +16,7 @@ ps1_status ps1_workload_load(const char *path, ps1_workload *out, ps1_diag *diag
        See "Workload Refusals" in the manual. */
 
     /* TODO: Read the file one line at a time.
-       Refuse a line longer than 511 bytes with "ps1: workload line N is too long".
+       Refuse a line of 511 bytes or more with "ps1: workload line N is too long".
        cases/parse/long_line.work
        See "The Workload File" in the manual. */
 

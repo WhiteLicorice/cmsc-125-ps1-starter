@@ -4,7 +4,7 @@
  * A deterministic multi-level feedback queue scheduler.
  *
  * The program prints one workload's schedule and its metrics. The model is
- * the one the manual's examples state:
+ * the one this folder's README states:
  *
  *   - The time unit is 1 ms.
  *   - The scheduler has three queues, with Q1 at the top and Q3 at the bottom.
