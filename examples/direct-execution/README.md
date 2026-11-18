@@ -96,9 +96,9 @@ property. The trap must cost more per call than the plain call does.
 
 This program asks the kernel for an interval timer with `setitimer(2)`. The
 kernel raises `SIGALRM` every millisecond. A handler counts the ticks. The main
-loop asks the kernel for nothing and never yields. The loop still loses the CPU
-for each tick, and control returns to the loop afterwards. After twenty ticks the
-loop stops on its own.
+loop asks the kernel for nothing and never yields. Each tick still interrupts the
+loop, and control returns to the loop afterwards. After twenty ticks the loop
+stops on its own.
 
 ```bash
 ./timer_interrupt
@@ -112,8 +112,9 @@ loop iterations: 57752993
 ```
 
 The first line is exact. The iteration count changes with the machine. The test
-checks that the count is a positive integer, which shows that the loop resumed
-after each tick.
+checks that the count is a positive integer, so a passing run shows loop work and
+twenty timer deliveries. The count is one total for the whole run, so it records
+no progress between two ticks.
 
 ## Where to Build and Run
 
