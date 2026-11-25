@@ -94,11 +94,11 @@ property. The trap must cost more per call than the plain call does.
 
 ### `timer_interrupt`
 
-This program asks the kernel for an interval timer with `setitimer(2)`. The
-kernel raises `SIGALRM` every millisecond. A handler counts the ticks. The main
-loop asks the kernel for nothing and never yields. Each tick still interrupts the
-loop, and control returns to the loop afterwards. After twenty ticks the loop
-stops on its own.
+This program asks the kernel for an interval timer with `setitimer(2)`. Every
+millisecond, an interrupt enters the kernel, which delivers `SIGALRM` to the
+handler. The handler counts the ticks. The main loop asks the kernel for
+nothing and never yields. Control returns to the loop afterwards. The loop
+stops once the handler has counted twenty.
 
 ```bash
 ./timer_interrupt
