@@ -111,12 +111,12 @@ timer fired 20 times
 loop iterations: 57752993
 ```
 
-The first line reports the deliveries the loop saw. It reads 20 on an idle
-machine. A second delivery can arrive before the loop reads the counter, so the
-count is 20 or more. The test accepts any count from 20 up. The iteration count
-changes with the machine. The test checks that it is a positive integer. A
-passing run shows loop work and twenty timer deliveries. The count is one total
-for the whole run, so it records no progress between two ticks.
+The first line reports the deliveries the loop saw. On an idle machine it reads
+20. A second delivery can arrive before the loop reads the counter, so the count
+can pass 20. The test accepts any count from 20 up. Iteration counts change with
+the machine. Any positive integer passes the check. A passing run shows loop work
+and twenty timer deliveries. This count is one total for the whole run, so it
+records no progress between two ticks.
 
 ## Where to Build and Run
 
