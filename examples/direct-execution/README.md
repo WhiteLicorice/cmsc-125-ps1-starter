@@ -96,12 +96,17 @@ property. The trap must cost more per call than the plain call does.
 
 This program registers a handler for `SIGALRM`. It asks the kernel for a
 1-millisecond interval timer with `setitimer(2)`. The main loop then runs,
-asks the kernel for nothing, and never yields. Every millisecond, a timer
-interrupt enters the kernel. The kernel pauses the loop and delivers `SIGALRM`
-to run the handler. The handler increments the tick counter and returns. Control
-then returns to the interrupted loop. The loop stops once it reads a count of
-twenty or more. The program then disarms the timer before it prints the two
-counts.
+asks the kernel for nothing, and never yields. The timer sets the order:
+
+1. When the one-millisecond interval elapses, the timer expires. The kernel
+   then marks `SIGALRM` pending for the process.
+2. The kernel delivers the signal the next time the process returns to user
+   mode.
+3. The handler increments the tick counter and returns.
+
+Control then returns to the interrupted loop. The loop stops once it reads a
+count of twenty or more. The program then disarms the timer before it prints
+the two counts.
 
 ```bash
 ./timer_interrupt
@@ -114,8 +119,8 @@ timer fired 20 times
 loop iterations: 57752993
 ```
 
-The first line reports the deliveries the loop saw. On an idle machine it reads
-20. A second delivery can arrive before the loop reads the tick counter, so the
+The first line reports the deliveries the loop saw. The sample run reads 20. A
+second delivery can arrive before the loop reads the tick counter, so the
 delivery count can pass 20. The test accepts any count from 20 up. The second
 line reports the loop iterations. That number changes with the machine. Any
 positive integer passes the check. A passing run shows loop work and twenty or
