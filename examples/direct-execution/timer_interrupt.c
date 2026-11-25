@@ -9,14 +9,14 @@
  * at the interrupted instruction.
  *
  * The loop asks the kernel for nothing and never yields. The ticks still
- * arrive, so the loop stops after the twentieth one.
+ * arrive, so the loop stops once twenty of them have.
  *
  * Build:
  *   cc -std=c11 -Wall -Wextra -Werror -D_POSIX_C_SOURCE=200809L \
  *      timer_interrupt.c -o timer_interrupt
  *
  * Output:
- *   timer fired 20 times
+ *   timer fired <deliveries> times   (20 or more)
  *   loop iterations: <count>
  */
 #include <signal.h>
@@ -58,6 +58,7 @@ int main(void)
 
     unsigned long iterations = 0;
     int seen = 0;
+    /* A second delivery can land before this read, so seen can pass the target. */
     while ((seen = ticks) < TARGET_TICKS) {
         iterations++;
     }

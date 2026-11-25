@@ -42,7 +42,7 @@ cc -std=c11 -Wall -Wextra -Werror -D_POSIX_C_SOURCE=200809L
 |:--|:--|:--|
 | `raw_syscall.c` | `./raw_syscall` | Four exact lines. The library call and the raw system call each return 25 bytes. |
 | `trap_cost.c` | `./trap_cost` | Two numbers. The trap costs more per call than the plain call. |
-| `timer_interrupt.c` | `./timer_interrupt` | One exact line, `timer fired 20 times`, then the loop count. |
+| `timer_interrupt.c` | `./timer_interrupt` | A delivery count of 20 or more, then the loop count. |
 
 ### `raw_syscall`
 
@@ -111,10 +111,12 @@ timer fired 20 times
 loop iterations: 57752993
 ```
 
-The first line is exact. The iteration count changes with the machine. The test
-checks that the count is a positive integer, so a passing run shows loop work and
-twenty timer deliveries. The count is one total for the whole run, so it records
-no progress between two ticks.
+The first line reports the deliveries the loop saw. It reads 20 on an idle
+machine. A second delivery can arrive before the loop reads the counter, so the
+count is 20 or more. The test accepts any count from 20 up. The iteration count
+changes with the machine, and the test checks that it is a positive integer. A
+passing run shows loop work and twenty timer deliveries. The count is one total
+for the whole run, so it records no progress between two ticks.
 
 ## Where to Build and Run
 

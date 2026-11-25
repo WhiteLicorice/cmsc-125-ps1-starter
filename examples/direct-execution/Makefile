@@ -30,8 +30,9 @@ check: all
 	awk -v p="$$plain" -v t="$$trap" 'BEGIN{exit !(t > p)}' && report ok trap_cost || report bad trap_cost; \
 	out=$$(./timer_interrupt 2>&1); \
 	first=$$(printf '%s\n' "$$out" | sed -n '1p'); \
+	deliveries=$$(printf '%s\n' "$$first" | sed -n 's/^timer fired \([0-9][0-9]*\) times$$/\1/p'); \
 	iters=$$(printf '%s\n' "$$out" | sed -n 's/^loop iterations: //p'); \
-	[ "$$first" = "timer fired 20 times" ] && [ -n "$$iters" ] && [ "$$iters" -gt 0 ] && report ok timer_interrupt || report bad timer_interrupt; \
+	[ -n "$$deliveries" ] && [ "$$deliveries" -ge 20 ] && [ -n "$$iters" ] && [ "$$iters" -gt 0 ] && report ok timer_interrupt || report bad timer_interrupt; \
 	echo "$$count examples, $$((count - fail)) passed, $$fail failed"; \
 	[ $$fail -eq 0 ]
 
