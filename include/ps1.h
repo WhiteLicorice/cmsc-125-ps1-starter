@@ -41,7 +41,7 @@ static inline uint64_t ps1_tick(uint64_t seed)
     return value;
 }
 
-/* Seconds a worker may take to leave after SIGTERM before the SIGKILL. */
+/* Milliseconds a worker may take to leave after SIGTERM before the SIGKILL. */
 #define PS1_TERM_GRACE_MS 100
 
 /* Exit codes. main maps a ps1_status onto one of these. */
@@ -215,7 +215,7 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
 
 /*
  * Writes the canonical report to out. The header line, then one line per
- * worker in workload order, then the average line.
+ * worker in workload order, then the average line, then the result line.
  */
 ps1_status ps1_report_print(const ps1_run *run, FILE *out);
 

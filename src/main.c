@@ -22,7 +22,7 @@ const char *ps1_self = NULL;
 static void usage(void)
 {
     fprintf(stderr,
-            "usage: cmsc-125-ps1 [--policy fifo|rr|stcf] [--quantum N] "
+            "usage: cmsc-125-ps1 --policy fifo|rr|stcf [--quantum N] "
             "[--trace-dir DIR] <workload>\n");
 }
 

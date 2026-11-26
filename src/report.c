@@ -1,8 +1,9 @@
 /*
  * report.c: yours. The metrics.
  *
- * The report has one header line, one line per worker in workload order, and
- * one average line. The manual's "The Report" section states every field.
+ * The report has one header line, then one line per worker in workload order,
+ * then the average line, then the result line. The manual's "The Report"
+ * section states every field.
  */
 #include "ps1.h"
 
