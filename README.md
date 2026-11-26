@@ -4,10 +4,11 @@
 This C17 project is the starter for the CMSC 125 Problem Set 1 controller. The
 controller forks worker processes and decides which one runs. It preempts the
 running worker with `SIGSTOP`. Each child starts the same program again in
-worker mode, with `execvp`, and reports its ticks on descriptor 1. The
-controller requests preemption at the quantum. The worker may report additional
-ticks before the stop takes effect. This README gives the repository map, the
-commands, the starting state, and the three host routes.
+worker mode, with `execvp`, and reports its ticks on descriptor 1. In round
+robin, the controller requests preemption at the quantum if the worker has
+ticks left. The worker may report additional ticks before the stop takes
+effect. This README gives the repository map, the commands, the starting state,
+and the three host routes.
 
 This project runs on Linux, on macOS, and on Windows through WSL2 Ubuntu. The
 controller uses POSIX calls only.
@@ -80,7 +81,7 @@ Collaboration.
 |---|---|
 | 0 | Every worker ran every tick of its burst and exited with status 0. |
 | 65 | The command line or the workload file was refused. |
-| 70 | A worker failed, a system call did, or the worker image could not start. |
+| 70 | A worker failed, a system call did, the worker image could not start, or the report could not be written. |
 | 130 | `SIGINT` ended the run. The report is partial. |
 
 ## The First Run
