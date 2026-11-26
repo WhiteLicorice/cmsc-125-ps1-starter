@@ -4,10 +4,10 @@
 This C17 project is the starter for the CMSC 125 Problem Set 1 controller. The
 controller forks worker processes and decides which one runs. It preempts the
 running worker with `SIGSTOP`. Each child starts the same program again in
-worker mode, with `execvp`, and reports its ticks on descriptor 1. The worker
-keeps computing until the stop lands. A slice then runs a tick or two past its
-quantum. This README gives the repository map, the commands, the starting
-state, and the three host routes.
+worker mode, with `execvp`, and reports its ticks on descriptor 1. The
+controller requests preemption at the quantum. The worker may report additional
+ticks before the stop takes effect. This README gives the repository map, the
+commands, the starting state, and the three host routes.
 
 This project runs on Linux, on macOS, and on Windows through WSL2 Ubuntu. The
 controller uses POSIX calls only.
@@ -78,7 +78,7 @@ Collaboration.
 
 | Code | Meaning |
 |---|---|
-| 0 | Every worker finished its burst. |
+| 0 | Every worker ran every tick of its burst and exited with status 0. |
 | 65 | The command line or the workload file was refused. |
 | 70 | A worker failed, a system call did, or the worker image could not start. |
 | 130 | `SIGINT` ended the run. The report is partial. |
@@ -164,12 +164,13 @@ short README and an example in the same three-file form. Run it with
 `./check.sh student-cases`.
 
 The runner replays each run from its traces and checks the policy decisions.
-A round-robin slice ends at exactly `quantum` bytes. A stopped worker gains no
-tick before its next dispatch. Reported tick counts and averages must match the
-run's trace. The runner checks measured time against a stated window. Host
-conditions affect each tick, so no exact time applies. An overrun moves ticks
-between runs. The runner checks each run against its own trace. The manual states the
-window and explains the overrun.
+It checks the round-robin preemption decision at exactly `quantum` bytes. The
+worker may report more ticks before the stop takes effect. A stopped worker
+gains no tick before its next dispatch. Reported tick counts and averages must
+match the run's trace. The runner checks measured time against a stated window.
+Host conditions affect each tick, so no exact time applies. An overrun moves
+ticks between runs. The runner checks each run against its own trace. The
+manual states the window and explains the overrun.
 
 `check.sh` runs the four invariant checks after the public cases. They cover
 signal cleanup, a failed fork, unrelated processes, and policy replay. The
