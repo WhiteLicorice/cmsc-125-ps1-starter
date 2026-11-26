@@ -79,7 +79,7 @@ Collaboration.
 |---|---|
 | 0 | Every worker finished its burst. |
 | 65 | The command line or the workload file was refused. |
-| 70 | A worker failed before its burst was done, a system call did, or the worker image could not start. |
+| 70 | A worker failed, a system call did, or the worker image could not start. |
 | 130 | `SIGINT` ended the run. The report is partial. |
 
 ## The First Run
