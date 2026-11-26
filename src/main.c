@@ -195,7 +195,10 @@ int main(int argc, char **argv)
         fprintf(stderr, "ps1: cannot write the report\n");
         return PS1_EXIT_FAULT;
     }
-    fflush(stdout);
+    if (fflush(stdout) != 0 || ferror(stdout)) {
+        fprintf(stderr, "ps1: cannot write the report\n");
+        return PS1_EXIT_FAULT;
+    }
 
     if (status == PS1_OK) {
         return PS1_EXIT_OK;
