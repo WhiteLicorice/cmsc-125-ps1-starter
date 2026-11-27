@@ -1151,8 +1151,9 @@ def run_case(work_path, repo_root):
     spec = parse_expect(work_path.with_suffix(".expect"))
     args = parse_args_file(work_path.with_suffix(".args"))
     workers = [w for w in parse_work(work_path) if w is not None]
-    policy = policy_of(args)
-    quantum = quantum_of(args)
+    # The runner reads the policy and the quantum after the run. A case can
+    # state a command-line refusal, so the runner must not refuse the case
+    # first. Read both values only where a check needs them.
 
     trace_dir = Path(tempfile.mkdtemp(prefix="ps1-trace-"))
     try:
@@ -1174,6 +1175,8 @@ def run_case(work_path, repo_root):
                                 f"'{stderr.strip()}'")
 
         if spec["schedule"] is not None and workers and not problems:
+            policy = policy_of(args)
+            quantum = quantum_of(args)
             expect_dispatches = expect_from_schedule(spec["schedule"])
             model_dispatches, _ = policy_engine(workers, policy, quantum)
             if model_dispatches != expect_dispatches:
@@ -1183,6 +1186,8 @@ def run_case(work_path, repo_root):
                     f"{expect_dispatches}")
 
         if code == 0 and not problems:
+            policy = policy_of(args)
+            quantum = quantum_of(args)
             if spec["schedule"] is not None:
                 paper = [f"{w}@{t}" for w, t in expect_from_schedule(spec["schedule"])]
                 print(f"       [info] paper schedule for zero overrun: "
@@ -1204,7 +1209,7 @@ def run_case(work_path, repo_root):
                 expected = "interrupted" if spec["exit"] == 130 else "faulted"
                 check_partial(report, workers,
                               load_partial_traces(trace_dir, workers), problems,
-                              expected, policy, quantum)
+                              expected, policy_of(args), quantum_of(args))
             check_trace_shape(trace_dir, workers, problems)
 
         if survivors is None:
