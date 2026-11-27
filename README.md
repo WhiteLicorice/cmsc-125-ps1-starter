@@ -109,7 +109,7 @@ disables them on forks. The workflow run is part of the submission.
 
 ```bash
 sudo apt update
-sudo apt install -y build-essential make python3
+sudo apt install -y build-essential make git python3
 ```
 
 ### macOS
@@ -131,14 +131,14 @@ python3 --version
 Install WSL2 with Ubuntu from PowerShell.
 
 ```powershell
-wsl --install -d Ubuntu
+wsl --install -d Ubuntu-24.04
 ```
 
 Open the Ubuntu terminal and install the tools inside it.
 
 ```bash
 sudo apt update
-sudo apt install -y build-essential make python3
+sudo apt install -y build-essential make git python3
 ```
 
 Work in the Ubuntu file system under your home directory. A checkout
@@ -150,6 +150,7 @@ differently.
 ```bash
 cc --version
 make --version
+git --version
 python3 --version
 ```
 
