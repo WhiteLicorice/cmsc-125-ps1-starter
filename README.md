@@ -53,6 +53,7 @@ student-cases/      the one boundary or failure case of your own
 examples/           the worked examples, named by subtopic
 tools/check_cases.py  the runner that grades the corpus
 tools/check_invariants.py  the checker for claims the cases cannot state
+tools/check_parallel_test.py  the checker that a second run stays separate
 ANALYSIS.md         the joint analysis that you create
 Makefile run check.sh  the run contract
 ```
@@ -186,6 +187,9 @@ Host conditions affect each tick, so no exact time applies. An overrun moves
 ticks between runs. The runner checks each run against its own trace. The
 manual states the window and explains the overrun.
 
-`check.sh` runs the four invariant checks after the public cases. They cover
-signal cleanup, a failed fork, unrelated processes, and policy replay. The
-checks are part of the same command, so no hidden suite exists.
+`check.sh` runs three checks in order: the public cases, the four invariant
+checks, and the two parallel-run checks. The invariant checks cover signal
+cleanup, a failed fork, unrelated processes, and policy replay. The parallel-run
+checks keep two runs apart. One starts a separate run. Its process must survive
+the checker. The other runs two checkers at once. Both must agree. No hidden
+suite exists.
