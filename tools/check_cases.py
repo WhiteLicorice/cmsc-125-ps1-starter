@@ -689,9 +689,9 @@ def run_program(cmd, repo_root, trace_dir=None, interrupt=None):
         except subprocess.TimeoutExpired:
             pass
 
-    survivors = running_processes()
+    survivors = running_processes(process.pid)
     if survivors:
-        kill_leftovers()
+        kill_process_group(process.pid)
 
     try:
         stdout, stderr = process.communicate(timeout=10)
@@ -712,28 +712,33 @@ def kill_tree(process):
     process.kill()
 
 
-def running_processes():
-    """Returns matching comm values, or None if ps fails."""
+def running_processes(pgid):
+    """Returns matching comm values in this run's group, or None if ps fails.
+
+    The group holds only the controller and workers this case started. A
+    separate run, in another checkout or another terminal, has its own group
+    and stays out of this check.
+    """
     try:
-        result = subprocess.run(["ps", "-A", "-o", "comm="], capture_output=True,
+        result = subprocess.run(["ps", "-A", "-o", "pgid=,comm="], capture_output=True,
                                 text=True, timeout=10)
     except (OSError, subprocess.SubprocessError):
         return None
     if result.returncode != 0:
         return None
-    return [line.strip() for line in result.stdout.splitlines()
-            if PROCESS_NAME in line]
+    found = []
+    for line in result.stdout.splitlines():
+        fields = line.split(None, 1)
+        if len(fields) == 2 and fields[0] == str(pgid) and PROCESS_NAME in fields[1]:
+            found.append(fields[1].strip())
+    return found
 
 
-def kill_leftovers():
-    """Removes any process the program left behind, so later cases start clean.
-
-    The pattern keeps the bracket trick so it cannot match the runner itself.
-    """
+def kill_process_group(pgid):
+    """Removes what this run left behind, so later cases start clean."""
     try:
-        subprocess.run(["pkill", "-9", "-f", f"[{PROCESS_NAME[0]}]{PROCESS_NAME[1:]}"],
-                       capture_output=True, timeout=10)
-    except (OSError, subprocess.SubprocessError):
+        os.killpg(pgid, signal.SIGKILL)
+    except OSError:
         pass
 
 
@@ -1211,11 +1216,6 @@ def main():
     if not work_files:
         print(f"ERROR: no .work files under '{case_folder}'.", file=sys.stderr)
         return 1
-
-    before = running_processes()
-    if before:
-        print("WARNING: a cmsc-125-ps1 process is already running. The cleanup "
-              "check counts only what each case leaves behind.", file=sys.stderr)
 
     failures = []
     for work_path in work_files:
