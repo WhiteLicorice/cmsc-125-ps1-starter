@@ -1143,13 +1143,18 @@ def check_trace_shape(trace_dir, workers, problems):
 # --------------------------------------------------------------------------
 
 
+def case_name(work_path, repo_root):
+    """The case's path under the repo root, or its own path when outside."""
+    try:
+        return work_path.relative_to(repo_root)
+    except ValueError:
+        return work_path
+
+
 def run_case(work_path, repo_root):
     """Runs one case and returns a list of problems, empty when it passes."""
     problems = []
-    try:
-        name = work_path.relative_to(repo_root)
-    except ValueError:
-        name = work_path
+    name = case_name(work_path, repo_root)
 
     spec = parse_expect(work_path.with_suffix(".expect"))
     args = parse_args_file(work_path.with_suffix(".args"))
@@ -1259,7 +1264,7 @@ def main():
         try:
             name, problems = run_case(work_path, repo_root)
         except CaseError as error:
-            name, problems = work_path.relative_to(repo_root), [str(error)]
+            name, problems = case_name(work_path, repo_root), [str(error)]
         if problems:
             failures.append(name)
             print(f"[FAIL] {name}")
