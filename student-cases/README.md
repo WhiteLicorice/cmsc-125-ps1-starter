@@ -14,6 +14,8 @@ A case is a `.work` file with two neighbours.
 
 - `name.work` holds the workload, one worker on a line.
 - `name.args` holds the command line, such as `--policy rr --quantum 4`.
+  The runner sets `--trace-dir` itself, so it removes a `--trace-dir` pair
+  from this file.
 - `name.expect` holds the expected exit code and the expected output.
 
 The manual's "The Workload File" and "The Run Contract" sections state every

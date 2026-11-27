@@ -213,6 +213,19 @@ def quantum_of(args):
     return 0
 
 
+def without_trace_dir(args):
+    """Drops a case's own --trace-dir pair. A final bare flag stays."""
+    kept = []
+    index = 0
+    while index < len(args):
+        if args[index] == "--trace-dir" and index + 1 < len(args):
+            index += 2
+            continue
+        kept.append(args[index])
+        index += 1
+    return kept
+
+
 # --------------------------------------------------------------------------
 # The paper schedule, for zero overrun
 # --------------------------------------------------------------------------
@@ -1169,7 +1182,9 @@ def run_case(work_path, repo_root):
         if spec["path"] is not None:
             target = spec["path"]
         # The case's arguments come last, so a final flag keeps no value.
-        cmd = ["./run", "--trace-dir", str(trace_dir), target] + args
+        # The runner owns the trace directory, so the case's pair goes.
+        cmd = (["./run", "--trace-dir", str(trace_dir), target]
+               + without_trace_dir(args))
         stdout, stderr, code, survivors = run_program(cmd, repo_root, trace_dir,
                                                       spec["interrupt"])
 
