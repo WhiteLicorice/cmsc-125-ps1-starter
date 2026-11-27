@@ -46,9 +46,11 @@ deterministic, so every comparison is exact. Each run stops after ten seconds.
 Each example sets its standard output to unbuffered. The order you see is the
 order the writes reached the pipe.
 
-Each example reaps every child it forks. A grandchild appears in two of the examples. The
-parent doesn't fork that grandchild. The kernel reaps the grandchild after it
-exits, and `make check` waits for the last writer of the output pipe to close.
+Each example waits for every child it forks directly. In two examples the
+middle child forks a grandchild and exits without waiting. Its exit status goes
+to the adopter that takes the grandchild, not to the middle child. The top
+process waits only for the middle child, and `make check` waits for the last
+writer of the output pipe to close.
 
 The five examples that fork run a `wait` before they print their summary line.
 The summary line is therefore always the last line of output.
@@ -124,8 +126,9 @@ parent: reaped the middle child, exit status 0
 ```
 
 After the reader drains the first payload, it sends the stop byte. The holder
-then writes the second payload. The reader's next read returns eight more bytes, the
-second payload. A read that returned 0 there would mean the pipe was finished,
+then writes the second payload. The reader's next read either returns eight
+more bytes, the second payload, or waits until the holder writes it. A read that
+returned 0 there would mean the pipe was finished,
 with no writer left. The pipe wasn't finished. The last read returns 0 only
 after the holder closes, when every writer has closed.
 
@@ -171,7 +174,7 @@ Send a signal to a child. Read the outcome.
 ```
 parent: child announced it is about to pause
 parent: sent SIGTERM
-parent: stopped by a signal: yes
+parent: terminated by a signal: yes
 parent: terminating signal number: 15
 parent: SIGTERM number: 15
 ```
