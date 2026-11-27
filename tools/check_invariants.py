@@ -59,13 +59,18 @@ def run(command, cwd, timeout=TIMEOUT):
     return result.stdout, result.stderr, result.returncode
 
 
-def processes_named(name):
-    result = subprocess.run(["ps", "-A", "-o", "pid,comm"], capture_output=True,
-                            text=True, timeout=10)
+def processes_named(pgid):
+    """Returns the PIDs of matching processes in this run's group.
+
+    A separate run, in another checkout or another terminal, has its own
+    group and stays out of this check.
+    """
+    result = subprocess.run(["ps", "-A", "-o", "pid=,pgid=,comm="],
+                            capture_output=True, text=True, timeout=10)
     found = []
-    for line in result.stdout.splitlines()[1:]:
-        fields = line.split(None, 1)
-        if len(fields) == 2 and name in fields[1]:
+    for line in result.stdout.splitlines():
+        fields = line.split(None, 2)
+        if len(fields) == 3 and fields[1] == str(pgid) and PROCESS_NAME in fields[2]:
             found.append(int(fields[0]))
     return found
 
@@ -81,9 +86,12 @@ def children_of(pid):
     return found
 
 
-def kill_leftovers():
-    subprocess.run(["pkill", "-9", "-f", f"[{PROCESS_NAME[0]}]{PROCESS_NAME[1:]}"],
-                   capture_output=True)
+def kill_leftovers(pgid):
+    """Removes what this run left behind. Other runs keep their processes."""
+    try:
+        os.killpg(pgid, signal.SIGKILL)
+    except OSError:
+        pass
 
 
 def trace_has_event(trace_dir):
@@ -143,10 +151,10 @@ def check_killed_worker(work):
         if "result faulted" not in stdout:
             problems.append("the report does not end in 'result faulted'")
         time.sleep(0.05)
-        survivors = processes_named(PROCESS_NAME)
+        survivors = processes_named(process.pid)
         if survivors:
             problems.append(f"{len(survivors)} process(es) survived the fault")
-            kill_leftovers()
+            kill_leftovers(process.pid)
         return "; ".join(problems)
 
 
@@ -312,7 +320,8 @@ def check_fork_failure(work):
             return "the controller did not exit after a fork failed"
 
         if FORK_SHIM_MARKER in stderr:
-            return fork_refused_outcome(process.returncode, stdout, stderr)
+            return fork_refused_outcome(process.returncode, stdout, stderr,
+                                        process.pid)
 
         # No process loaded the shim, so nothing could interpose the
         # controller's `fork`. That holds whatever the exit code, because a
@@ -348,7 +357,7 @@ def failed_run_outcome(returncode, stderr):
             f"first stderr line '{first_controller_line(stderr)}'")
 
 
-def fork_refused_outcome(returncode, stdout, stderr):
+def fork_refused_outcome(returncode, stdout, stderr, pgid):
     """The ordinary path: a fork was refused, so every claim applies."""
     problems = []
     if returncode != 70:
@@ -359,10 +368,10 @@ def fork_refused_outcome(returncode, stdout, stderr):
         problems.append("stderr does not name the fork failure: "
                         f"'{stderr.strip()}'")
     time.sleep(0.05)
-    survivors = processes_named(PROCESS_NAME)
+    survivors = processes_named(pgid)
     if survivors:
         problems.append(f"{len(survivors)} process(es) survived the fault")
-        kill_leftovers()
+        kill_leftovers(pgid)
     return "; ".join(problems)
 
 
@@ -383,7 +392,6 @@ def main():
         print(f"'{work}' holds no run entry point.", file=sys.stderr)
         return 1
 
-    kill_leftovers()
     failures = 0
     skipped = 0
     for title, check in CHECKS:

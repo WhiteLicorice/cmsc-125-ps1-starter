@@ -47,6 +47,11 @@ if [[ "$case_folder" == "cases" ]]; then
   if ! "$PYTHON" tools/check_invariants.py .; then
     failures=1
   fi
+
+  banner "parallel run"
+  if ! "$PYTHON" tools/check_parallel_test.py; then
+    failures=1
+  fi
 fi
 
 banner "result"
