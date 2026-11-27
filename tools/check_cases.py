@@ -1146,7 +1146,10 @@ def check_trace_shape(trace_dir, workers, problems):
 def run_case(work_path, repo_root):
     """Runs one case and returns a list of problems, empty when it passes."""
     problems = []
-    name = work_path.relative_to(repo_root)
+    try:
+        name = work_path.relative_to(repo_root)
+    except ValueError:
+        name = work_path
 
     spec = parse_expect(work_path.with_suffix(".expect"))
     args = parse_args_file(work_path.with_suffix(".args"))
@@ -1157,13 +1160,11 @@ def run_case(work_path, repo_root):
 
     trace_dir = Path(tempfile.mkdtemp(prefix="ps1-trace-"))
     try:
-        try:
-            target = work_path.relative_to(repo_root).as_posix()
-        except ValueError:
-            target = str(work_path)
+        target = name.as_posix()
         if spec["path"] is not None:
             target = spec["path"]
-        cmd = ["./run"] + args + ["--trace-dir", str(trace_dir), target]
+        # The case's arguments come last, so a final flag keeps no value.
+        cmd = ["./run", "--trace-dir", str(trace_dir), target] + args
         stdout, stderr, code, survivors = run_program(cmd, repo_root, trace_dir,
                                                       spec["interrupt"])
 
