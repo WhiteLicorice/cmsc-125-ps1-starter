@@ -128,13 +128,25 @@ python3 --version
 
 ### Windows Through WSL2 Ubuntu
 
-Install WSL2 with Ubuntu from PowerShell.
+Use Windows 10 version 2004 or later, or Windows 11. Open PowerShell as an
+administrator, then install the Ubuntu 24.04 release.
 
 ```powershell
 wsl --install -d Ubuntu-24.04
 ```
 
-Open the Ubuntu terminal and install the tools inside it.
+The `-d` flag selects the release, so this installs Ubuntu 24.04.
+
+Restart Windows when the installer asks. After restart, **Ubuntu 24.04 LTS**
+opens from the Start menu for the first launch. Create the Linux account and
+password it asks for. On later days, start the same distribution from
+PowerShell.
+
+```powershell
+wsl -d Ubuntu-24.04
+```
+
+Install the tools inside the Ubuntu terminal.
 
 ```bash
 sudo apt update
