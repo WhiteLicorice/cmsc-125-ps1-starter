@@ -7,10 +7,11 @@
 # controller or worker process survives a case.
 #
 #   ./check.sh                 run the published corpus in cases/
-#   ./check.sh student-cases   run the pair's own cases in student-cases/
+#   ./check.sh student-cases   run the group's own cases in student-cases/
 set -u
 
 case_folder="${1:-cases}"
+case_path=$(CDPATH= cd -- "$case_folder" 2>/dev/null && pwd) || case_path="$PWD/$case_folder"
 failures=0
 
 banner() {
@@ -42,7 +43,7 @@ if ! "$PYTHON" tools/check_cases.py "$case_folder"; then
   failures=1
 fi
 
-if [[ "$case_folder" == "cases" ]]; then
+if [[ "$case_path" == "$PWD/cases" ]]; then
   banner "invariants"
   if ! "$PYTHON" tools/check_invariants.py .; then
     failures=1
@@ -56,7 +57,7 @@ fi
 
 banner "result"
 if [[ "$failures" -eq 0 ]]; then
-  if [[ "$case_folder" == "cases" ]]; then
+  if [[ "$case_path" == "$PWD/cases" ]]; then
     echo "All published checks passed."
   else
     echo "All cases in $case_folder passed."
