@@ -1005,7 +1005,8 @@ def check_slice_rate(metrics, traces, problems):
                    total_ms / total_ticks, problems)
 
 
-def check_partial(report, workers, traces, problems):
+def check_partial(report, workers, traces, problems, expected_result, policy,
+                  quantum):
     """Checks a partial report against its traces, without a schedule.
 
     Each row carries a dispatch count and a preemption count. Both must match
@@ -1014,13 +1015,29 @@ def check_partial(report, workers, traces, problems):
     one dispatch, so the row is compared with its trace and not with a rule.
     """
     by_name = {w.name: w for w in workers}
+    if report["workers"] != len(workers):
+        problems.append(f"the header says {report['workers']} workers, expected "
+                        f"{len(workers)}")
+    if report["policy"] != policy:
+        problems.append(f"the header says policy {report['policy']}, expected "
+                        f"{policy}")
+    if report["quantum"] != quantum:
+        problems.append(f"the header says quantum {report['quantum']}, expected "
+                        f"{quantum}")
     if len(report["rows"]) != len(workers):
         problems.append(f"the partial report holds {len(report['rows'])} worker "
                         f"lines, expected {len(workers)}")
         return
-    if report["result"] == "finished":
-        problems.append("the result line says 'finished', expected 'interrupted' "
-                        "or 'faulted'")
+    names = [row["name"] for row in report["rows"]]
+    if len(set(names)) != len(names):
+        problems.append("the partial report holds two lines for one worker")
+    missing = [name for name in by_name if name not in names]
+    if missing:
+        problems.append("the partial report has no line for "
+                        + ", ".join(missing))
+    if report["result"] != expected_result:
+        problems.append(f"the result line says '{report['result']}', expected "
+                        f"'{expected_result}'")
     if report["ticks"] > sum(w.burst for w in workers):
         problems.append(f"the partial report ran {report['ticks']} ticks, more than "
                         f"the workload's {sum(w.burst for w in workers)}")
@@ -1184,8 +1201,10 @@ def run_case(work_path, repo_root):
         elif spec["partial"]:
             report = parse_report(stdout, problems)
             if report:
+                expected = "interrupted" if spec["exit"] == 130 else "faulted"
                 check_partial(report, workers,
-                              load_partial_traces(trace_dir, workers), problems)
+                              load_partial_traces(trace_dir, workers), problems,
+                              expected, policy, quantum)
             check_trace_shape(trace_dir, workers, problems)
 
         if survivors is None:
