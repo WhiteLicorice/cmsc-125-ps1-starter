@@ -7,7 +7,7 @@
 # controller or worker process survives a case.
 #
 #   ./check.sh                 run the published corpus in cases/
-#   ./check.sh student-cases   run the pair's own cases in student-cases/
+#   ./check.sh student-cases   run the group's own cases in student-cases/
 set -u
 
 case_folder="${1:-cases}"

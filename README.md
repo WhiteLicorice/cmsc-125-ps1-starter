@@ -173,7 +173,7 @@ The 57 cases under `cases/` are the cases the instructor grades with. Each
 `.expect` file holds the expected exit code, the expected diagnostic, and the
 paper schedule. It shows the dispatch order without an overrun.
 
-The one case your pair writes lives under `student-cases/`. That folder holds a
+The one case your group writes lives under `student-cases/`. That folder holds a
 short README and an example in the same three-file form. Run it with
 `./check.sh student-cases`.
 

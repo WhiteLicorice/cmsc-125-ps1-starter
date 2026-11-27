@@ -3,7 +3,7 @@
 
 The case checker removes what a run leaves behind. A cleanup that matches
 processes by name also reaches a run in another checkout, in another
-terminal, or in a partner's copy. This test starts a process that belongs to
+terminal, or in a group member's copy. This test starts a process that belongs to
 a separate run, runs the checker over the corpus, and requires that process
 to still be alive at the end. The test also runs two checkers at the same
 time and requires the same result from both.

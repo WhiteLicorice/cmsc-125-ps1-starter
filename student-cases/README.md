@@ -1,7 +1,7 @@
 <!--no-pdf-->
 # Your Own Case
 
-This folder holds the one boundary or failure case your pair writes for the
+This folder holds the one boundary or failure case your group writes for the
 rubric's implementation row. The published corpus lives in `cases/`. Keep it unchanged.
 
 The three files named `example` form one case. Replace them with your own case.
