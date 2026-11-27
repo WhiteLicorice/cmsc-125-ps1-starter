@@ -20,7 +20,7 @@ A case is a `.work` file with two neighbours.
 
 The manual's "The Workload File" and "The Run Contract" sections state every
 rule. The runner reads the same three files for the published corpus, so a case
-here is written the same way.
+in this folder is written in the same way.
 
 An `.expect` file holds one directive on a line.
 
