@@ -109,7 +109,7 @@ ps1_trace *ps1_trace_open(const char *dir, const ps1_workload *wl, ps1_diag *dia
             free(t);
             return NULL;
         }
-        t->fd[i] = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        t->fd[i] = open(path, O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
         if (t->fd[i] < 0) {
             fail(diag, "ps1: cannot write the trace file '%s'", path);
             close_all(t);
