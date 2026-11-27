@@ -14,11 +14,13 @@ A case is a `.work` file with two neighbours.
 
 - `name.work` holds the workload, one worker on a line.
 - `name.args` holds the command line, such as `--policy rr --quantum 4`.
+  The runner sets `--trace-dir` itself, so it removes a `--trace-dir` pair
+  from this file.
 - `name.expect` holds the expected exit code and the expected output.
 
 The manual's "The Workload File" and "The Run Contract" sections state every
 rule. The runner reads the same three files for the published corpus, so a case
-here is written the same way.
+in this folder is written in the same way.
 
 An `.expect` file holds one directive on a line.
 

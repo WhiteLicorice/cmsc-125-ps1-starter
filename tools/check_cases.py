@@ -213,6 +213,19 @@ def quantum_of(args):
     return 0
 
 
+def without_trace_dir(args):
+    """Drops a case's own --trace-dir pair. A final bare flag stays."""
+    kept = []
+    index = 0
+    while index < len(args):
+        if args[index] == "--trace-dir" and index + 1 < len(args):
+            index += 2
+            continue
+        kept.append(args[index])
+        index += 1
+    return kept
+
+
 # --------------------------------------------------------------------------
 # The paper schedule, for zero overrun
 # --------------------------------------------------------------------------
@@ -1143,26 +1156,35 @@ def check_trace_shape(trace_dir, workers, problems):
 # --------------------------------------------------------------------------
 
 
+def case_name(work_path, repo_root):
+    """The case's path under the repo root, or its own path when outside."""
+    try:
+        return work_path.relative_to(repo_root)
+    except ValueError:
+        return work_path
+
+
 def run_case(work_path, repo_root):
     """Runs one case and returns a list of problems, empty when it passes."""
     problems = []
-    name = work_path.relative_to(repo_root)
+    name = case_name(work_path, repo_root)
 
     spec = parse_expect(work_path.with_suffix(".expect"))
     args = parse_args_file(work_path.with_suffix(".args"))
     workers = [w for w in parse_work(work_path) if w is not None]
-    policy = policy_of(args)
-    quantum = quantum_of(args)
+    # The runner reads the policy and the quantum after the run. A case can
+    # state a command-line refusal, so the runner must not refuse the case
+    # first. Read both values only where a check needs them.
 
     trace_dir = Path(tempfile.mkdtemp(prefix="ps1-trace-"))
     try:
-        try:
-            target = work_path.relative_to(repo_root).as_posix()
-        except ValueError:
-            target = str(work_path)
+        target = name.as_posix()
         if spec["path"] is not None:
             target = spec["path"]
-        cmd = ["./run"] + args + ["--trace-dir", str(trace_dir), target]
+        # The case's arguments come last, so a final flag keeps no value.
+        # The runner owns the trace directory, so the case's pair goes.
+        cmd = (["./run", "--trace-dir", str(trace_dir), target]
+               + without_trace_dir(args))
         stdout, stderr, code, survivors = run_program(cmd, repo_root, trace_dir,
                                                       spec["interrupt"])
 
@@ -1174,6 +1196,8 @@ def run_case(work_path, repo_root):
                                 f"'{stderr.strip()}'")
 
         if spec["schedule"] is not None and workers and not problems:
+            policy = policy_of(args)
+            quantum = quantum_of(args)
             expect_dispatches = expect_from_schedule(spec["schedule"])
             model_dispatches, _ = policy_engine(workers, policy, quantum)
             if model_dispatches != expect_dispatches:
@@ -1183,6 +1207,8 @@ def run_case(work_path, repo_root):
                     f"{expect_dispatches}")
 
         if code == 0 and not problems:
+            policy = policy_of(args)
+            quantum = quantum_of(args)
             if spec["schedule"] is not None:
                 paper = [f"{w}@{t}" for w, t in expect_from_schedule(spec["schedule"])]
                 print(f"       [info] paper schedule for zero overrun: "
@@ -1204,7 +1230,7 @@ def run_case(work_path, repo_root):
                 expected = "interrupted" if spec["exit"] == 130 else "faulted"
                 check_partial(report, workers,
                               load_partial_traces(trace_dir, workers), problems,
-                              expected, policy, quantum)
+                              expected, policy_of(args), quantum_of(args))
             check_trace_shape(trace_dir, workers, problems)
 
         if survivors is None:
@@ -1253,7 +1279,7 @@ def main():
         try:
             name, problems = run_case(work_path, repo_root)
         except CaseError as error:
-            name, problems = work_path.relative_to(repo_root), [str(error)]
+            name, problems = case_name(work_path, repo_root), [str(error)]
         if problems:
             failures.append(name)
             print(f"[FAIL] {name}")
