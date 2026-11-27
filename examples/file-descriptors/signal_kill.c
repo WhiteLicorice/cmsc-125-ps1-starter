@@ -73,7 +73,7 @@ int main(void)
     if (waitpid(child, &status, 0) < 0) {
         die("waitpid");
     }
-    printf("parent: stopped by a signal: %s\n",
+    printf("parent: terminated by a signal: %s\n",
            WIFSIGNALED(status) ? "yes" : "no");
     printf("parent: terminating signal number: %d\n",
            WIFSIGNALED(status) ? WTERMSIG(status) : -1);

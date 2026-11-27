@@ -3,10 +3,10 @@
  *
  * A write end that survives in a process the reader never forked.
  *
- * The reader drains the first payload. Then it reads again while the pipe is
- * empty, and that read returns eight more bytes rather than zero, because one
- * write end is still open. Only after the holder closes does a read on the
- * empty pipe return zero.
+ * The reader drains the first payload. Then it reads again. That read either
+ * returns the second payload once the holder writes it, or waits until the
+ * holder writes it. One write end is still open, so the pipe is not finished.
+ * Only after the holder closes does a read on the empty pipe return zero.
  *
  * The reader prints every line, so the order of the output is fixed.
  */

@@ -194,15 +194,21 @@ def parse_expect(path):
 
 def policy_of(args):
     if "--policy" in args:
-        return args[args.index("--policy") + 1]
+        index = args.index("--policy")
+        if index + 1 >= len(args):
+            raise CaseError("the .args file ends with '--policy' and no value.")
+        return args[index + 1]
     return "fifo"
 
 
 def quantum_of(args):
     if "--quantum" in args:
+        index = args.index("--quantum")
+        if index + 1 >= len(args):
+            raise CaseError("the .args file ends with '--quantum' and no value.")
         try:
-            return int(args[args.index("--quantum") + 1])
-        except (ValueError, IndexError):
+            return int(args[index + 1])
+        except ValueError:
             return 0
     return 0
 
@@ -482,6 +488,8 @@ def replay(workers, policy, quantum, traces, problems):
             dispatch_clock[name] = event_clock
             dispatch_done[name] = event["done"]
             preempt_ticks[name] = set()
+            preempt_clock.pop(name, None)
+            preempt_done.pop(name, None)
             if response_ticks[name] is None:
                 response_ticks[name] = event_clock - by_name[name].arrival
                 first_dispatch_sec[name] = event["seconds"]
@@ -536,6 +544,10 @@ def replay(workers, policy, quantum, traces, problems):
                 problems.append(
                     f"worker {name} stops at tick {event_clock} but it is not the "
                     f"running worker ({running})")
+            if name not in preempt_clock:
+                problems.append(
+                    f"worker {name} stops at tick {event_clock} with no "
+                    f"preemption request since its dispatch")
             base_done = preempt_done.get(name, done[name])
             base_clock = preempt_clock.get(name, event_clock)
             expected = base_done + (event_clock - base_clock)
