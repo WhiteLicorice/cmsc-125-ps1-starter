@@ -15,7 +15,6 @@ Run it from the starter root after `make`:
 
     python3 tools/check_parallel_test.py
 """
-import os
 import shutil
 import subprocess
 import sys
