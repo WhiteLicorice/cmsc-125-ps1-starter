@@ -1,7 +1,7 @@
 /*
  * sim.c
  *
- * The student cases for the CMSC 125 round-robin simulator.
+ * The worked-example cases for the round-robin simulator.
  *
  * The program runs a round-robin scheduler over several workloads and prints
  * the schedule and the metrics for each one. Every case here is a worked
