@@ -33,7 +33,6 @@ Exit code: 0 when every check passes, 1 otherwise.
 
 import importlib.util
 import os
-import re
 import shutil
 import signal
 import subprocess
