@@ -2,12 +2,13 @@
 # CMSC 125 Problem Set 1 Starter
 
 This C17 project is the starter for the CMSC 125 Problem Set 1 controller. The
-controller forks worker processes and decides which one runs. It preempts the
-running worker with `SIGSTOP`. Each child starts the same program again in
-worker mode, with `execvp`, and reports its ticks on descriptor 1. In round
+controller forks worker processes and decides which one runs. It asks the
+running worker to stop with `SIGTSTP`. Each child starts the same program again
+in worker mode, with `execvp`, and reports its ticks on descriptor 1. The child
+waits at birth for a release byte on descriptor 0 and at each stop. In round
 robin, the controller requests preemption at the quantum if the worker has
-ticks left. The worker may report additional ticks before the stop takes
-effect. This README gives the repository map, the commands, the starting state,
+ticks left. The worker may report additional ticks before it honors the stop
+request. This README gives the repository map, the commands, the starting state,
 and the three host routes.
 
 This project runs on Linux, on macOS, and on Windows through WSL2 Ubuntu. The
@@ -180,7 +181,7 @@ short README and an example in the same three-file form. Run it with
 
 The runner replays each run from its traces and checks the policy decisions.
 It checks the round-robin preemption decision at exactly `quantum` bytes. The
-worker may report more ticks before the stop takes effect. A stopped worker
+worker may report more ticks before it honors the stop request. A stopped worker
 gains no tick before its next dispatch. Reported tick counts and averages must
 match the run's trace. The runner checks measured time against a stated window.
 Host conditions affect each tick, so no exact time applies. An overrun moves

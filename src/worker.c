@@ -1,10 +1,12 @@
 /*
  * worker.c: yours. The child side of the fork.
  *
- * A worker parks itself at birth. After that it computes freely: one tick of
- * work, one byte on its standard output, and on, without asking the controller
- * for anything. The controller points standard output at the progress pipe
- * before the worker starts. See "The Controller and Its Workers" in the manual.
+ * A worker waits at birth for one release byte on its standard input. After
+ * that it computes freely: one tick of work, one byte on its standard output,
+ * and on, without asking the controller for anything. A stop request arrives as
+ * SIGTSTP. The worker finishes the tick in its hands, writes a stop byte, and
+ * waits on standard input for the next release byte. See "The Controller and
+ * Its Workers" in the manual.
  */
 #include "ps1.h"
 
@@ -12,13 +14,25 @@
 
 void ps1_worker_main(const ps1_workload *wl, size_t index)
 {
-    /* TODO: Park the worker at birth with raise(SIGSTOP).
-       No tick runs before the controller dispatches the worker.
+    /* TODO: Install a SIGTSTP handler that sets a stop flag.
+       The handler runs between ticks. It only sets a flag, because a signal
+       handler may call few functions.
        See "Stopping and Continuing" in the manual. */
 
     /* TODO: Reset SIGINT to its default action.
        A Ctrl-C in the terminal then ends the worker outright.
        See "The Signal Contract" in the manual. */
+
+    /* TODO: Wait at birth for one release byte on standard input.
+       Descriptor 0 is the control pipe. Read with read, and retry when a
+       signal interrupts it. No tick runs before the controller releases the
+       worker.
+       See "The Release Barrier" in the manual. */
+
+    /* TODO: At each tick boundary, if the stop flag is set, write the stop
+       byte PS1_STOP_BYTE and wait for the next release byte.
+       The tick that was running when the request arrived is already reported.
+       See "Stopping and Continuing" in the manual. */
 
     /* TODO: Burn one tick with ps1_tick.
        Use the previous result as the input to each tick.

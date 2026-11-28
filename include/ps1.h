@@ -25,10 +25,10 @@
 /*
  * One tick of work. The definition is fixed so that every worker burns the
  * same work for a tick. The loop cost limits how far the worker can progress
- * before SIGSTOP. The worker writes far less than one pipe buffer in that
- * interval. A caller uses the returned value as the next seed. The value must
- * also reach observable output, such as the progress byte. A seed that reaches
- * no output lets the compiler remove the loop.
+ * before it honors a stop request. The worker writes far less than one pipe
+ * buffer in that interval. A caller uses the returned value as the next seed.
+ * The value must also reach observable output, such as the progress byte. A
+ * seed that reaches no output lets the compiler remove the loop.
  */
 static inline uint64_t ps1_tick(uint64_t seed)
 {
@@ -49,6 +49,15 @@ static inline uint64_t ps1_tick(uint64_t seed)
 #define PS1_EXIT_REJECTED 65
 #define PS1_EXIT_FAULT 70
 #define PS1_EXIT_INTERRUPTED 130
+
+/*
+ * The byte a worker writes on its progress pipe when it has stopped and is
+ * waiting to be released. A finished tick writes a value in 0..127, so this
+ * value cannot be mistaken for a tick. The controller signals a stop with
+ * SIGTSTP. The worker finishes the tick in its hands, writes this byte, and
+ * waits on standard input for one release byte.
+ */
+#define PS1_STOP_BYTE 0xFFu
 
 typedef enum {
     PS1_POLICY_FIFO = 0,
@@ -189,10 +198,14 @@ extern const char *ps1_self;
 
 /*
  * Runs in the worker process. `index` is the worker's position in the
- * workload. The worker reports one byte per finished tick on standard output,
- * which the controller points at the progress pipe before the worker starts.
- * This function never returns: it leaves with exit status 0 when the burst is
- * complete, or with status 9 after a crash tick.
+ * workload. The worker waits at birth for one release byte on standard input,
+ * which the controller points at a control pipe before the worker starts. It
+ * then reports one byte per finished tick on standard output, which the
+ * controller points at the progress pipe. The controller asks for a stop with
+ * SIGTSTP. The worker finishes the tick in its hands, writes PS1_STOP_BYTE,
+ * and waits on standard input for the next release byte. This function never
+ * returns: it leaves with exit status 0 when the burst is complete, or with
+ * status 9 after a crash tick.
  */
 void ps1_worker_main(const ps1_workload *wl, size_t index);
 
@@ -201,10 +214,11 @@ void ps1_worker_main(const ps1_workload *wl, size_t index);
 /* ------------------------------------------------------------------ */
 
 /*
- * Forks the workers, decides who runs, preempts them, writes the traces,
- * reaps every child on every exit path, and fills *run. On a fault it writes
- * the stated message to *diag. On SIGINT it sets run->interrupted and returns
- * PS1_ERR_INTERRUPTED after the partial report is valid.
+ * Forks the workers, decides who runs, stops them with SIGTSTP, releases them
+ * with one byte on the control pipe, writes the traces, reaps every child on
+ * every exit path, and fills *run. On a fault it writes the stated message to
+ * *diag. On SIGINT it sets run->interrupted and returns PS1_ERR_INTERRUPTED
+ * after the partial report is valid.
  */
 ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
                               ps1_run *run, ps1_diag *diag);

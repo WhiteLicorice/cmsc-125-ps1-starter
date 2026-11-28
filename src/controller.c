@@ -2,9 +2,9 @@
  * controller.c: yours. The scheduler.
  *
  * The controller forks the workers, decides who runs from the work clock,
- * preempts with SIGSTOP, continues with SIGCONT, writes the traces, and reaps
- * every child on every exit path. See "The Controller" and "The Run Contract"
- * in the manual.
+ * asks a worker to stop with SIGTSTP, releases it with one byte on its control
+ * pipe, writes the traces, and reaps every child on every exit path. See "The
+ * Controller" and "The Run Contract" in the manual.
  */
 #include "ps1.h"
 
@@ -30,19 +30,26 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
        cases/normal/fifo_single.work
        See "Its Loop" in the manual. */
 
+    /* TODO: Create one control pipe for each worker.
+       The worker reads its release bytes from descriptor 0.
+       See "The Release Barrier" in the manual. */
+
     /* TODO: Fork every worker before the first dispatch.
-       In the child, close the other workers' progress descriptors and this
-       worker's pipe read end.
-       Point descriptor 1 at the progress pipe with dup2, then close the
-       write end it copies. The worker writes its ticks to descriptor 1.
+       In the child, close the other workers' progress and control
+       descriptors, this worker's pipe ends, and then point descriptor 0 at
+       the control pipe and descriptor 1 at the progress pipe with dup2.
+       Close the copies. The worker writes its ticks to descriptor 1 and
+       reads its releases from descriptor 0.
        Then replace the child with execvp. Pass ps1_self, "--worker", the
        index as text, and opts->path. The worker runs the same program.
        cases/normal/max_workers.work
        See "The Progress Pipe" and "Replacing the Program Image" in the manual. */
 
-    /* TODO: Wait for a worker's birth stop before you dispatch that worker.
-       A SIGCONT sent before the worker's own stop is lost. The run hangs.
-       See "Stopping and Continuing" in the manual. */
+    /* TODO: Release a worker by writing one byte on its control pipe.
+       No tick runs before the controller releases the worker. A byte written
+       before the worker's read stays in the pipe, so the release is never
+       lost.
+       See "The Release Barrier" in the manual. */
 
     /* TODO: Release every worker whose arrival tick the clock has reached.
        Record its arrival time.
@@ -50,9 +57,9 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
        See "Its Loop" in the manual. */
 
     /* TODO: When nothing is running, pick a worker by the policy.
-       Continue the worker with SIGCONT.
-       Record the dispatch time before you send SIGCONT. After the signal,
-       the worker can run its whole slice before your next line.
+       Check that its progress pipe is empty, then release it with one byte.
+       Record the dispatch time before the release. After the byte, the worker
+       can run its whole slice before your next line.
        cases/normal/fifo_single.work
        See "The Policies" in the manual. */
 
@@ -84,13 +91,10 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
        See "Shortest Time to Completion First" in the manual. */
 
     /* TODO: At a preemption, write the preempt event at the decision tick.
-       Send SIGSTOP.
-       Wait for the stop with waitpid.
+       Send SIGTSTP.
+       Read the progress pipe until the worker writes PS1_STOP_BYTE. Each tick
+       byte you read there is overrun.
        cases/arrival/rr_with_arrival.work
-       See "Stopping and Continuing" in the manual. */
-
-    /* TODO: Drain the overrun bytes from the pipe without blocking.
-       Count each byte as a finished tick.
        See "Stopping and Continuing" in the manual. */
 
     /* TODO: Release every arrival the overrun reached.
@@ -99,18 +103,17 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
        See "Round Robin" in the manual. */
 
     /* TODO: Handle completion when the worker's total done count reaches its burst.
-       Continue the worker with SIGCONT if it is still stopped.
-       Wait for the worker to exit.
+       Release the worker if it holds the barrier, then wait for its exit.
        Write the complete event.
        Write the stopped event only for a worker still stopped with work left.
        Treat a worker that leaves short of its burst as a fault.
        See "Stopping and Continuing" in the manual. */
 
     /* TODO: Put a still-runnable preempted worker at the back of the queue.
-       Do this after the drain and the completion or fault decision.
+       Do this after the overrun read and the completion or fault decision.
        Skip this step under stcf.
        The next dispatch of this worker follows the dispatch rule above.
-       Record its new dispatch time before the SIGCONT.
+       Record its new dispatch time before the release byte.
        See "Round Robin" in the manual. */
 
     /* TODO: Record a worker's response at its first dispatch.
@@ -134,11 +137,13 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
        cases/cleanup/sigint_mid_run.work
        See "Every Exit Path" in the manual. */
 
-    /* TODO: Continue a stopped worker with SIGCONT.
+    /* TODO: End every child.
        Send SIGTERM.
        Wait PS1_TERM_GRACE_MS.
        Send SIGKILL.
        Reap whatever remains.
+       A worker at its release barrier dies of SIGTERM. A running worker does
+       too.
        See "Every Exit Path" in the manual. */
 
     /* TODO: On a failed fork, end the workers already forked.
