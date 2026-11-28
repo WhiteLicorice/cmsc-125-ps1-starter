@@ -31,6 +31,8 @@
 struct ps1_trace {
     int fd[PS1_MAX_WORKERS];
     const ps1_workload *workload;
+    ps1_diag *diag;
+    char dir[PS1_TRACE_PATH];
 };
 
 static void fail(ps1_diag *diag, const char *format, ...)
@@ -43,6 +45,13 @@ static void fail(ps1_diag *diag, const char *format, ...)
     va_start(args, format);
     vsnprintf(diag->text, sizeof diag->text, format, args);
     va_end(args);
+}
+
+static ps1_status write_failed(struct ps1_trace *t, size_t index)
+{
+    fail(t->diag, "ps1: cannot write the trace file '%s/%s.trace'",
+         t->dir, t->workload->workers[index].name);
+    return PS1_ERR_FAULT;
 }
 
 static const char *event_word(ps1_event event)
@@ -100,6 +109,8 @@ ps1_trace *ps1_trace_open(const char *dir, const ps1_workload *wl, ps1_diag *dia
         t->fd[i] = -1;
     }
     t->workload = wl;
+    snprintf(t->dir, sizeof t->dir, "%s", dir);
+    t->diag = diag;
 
     for (i = 0; i < wl->count; i++) {
         int n = snprintf(path, sizeof path, "%s/%s.trace", dir, wl->workers[i].name);
@@ -129,8 +140,10 @@ ps1_status ps1_trace_arrival(ps1_trace *t, size_t index, double seconds)
         return PS1_ERR_FAULT;
     }
     worker = &t->workload->workers[index];
-    dprintf(t->fd[index], "# ps1 trace: worker %s arrival %ld burst %ld time %.6f\n",
-            worker->name, worker->arrival, worker->burst, seconds);
+    if (dprintf(t->fd[index], "# ps1 trace: worker %s arrival %ld burst %ld time %.6f\n",
+                worker->name, worker->arrival, worker->burst, seconds) < 0) {
+        return write_failed(t, index);
+    }
     return PS1_OK;
 }
 
@@ -140,7 +153,9 @@ ps1_status ps1_trace_event(ps1_trace *t, size_t index, ps1_event event,
     if (t == NULL || index >= PS1_MAX_WORKERS || t->fd[index] < 0) {
         return PS1_ERR_FAULT;
     }
-    dprintf(t->fd[index], "%s %ld %ld %.6f\n", event_word(event), tick, done, seconds);
+    if (dprintf(t->fd[index], "%s %ld %ld %.6f\n", event_word(event), tick, done, seconds) < 0) {
+        return write_failed(t, index);
+    }
     return PS1_OK;
 }
 
