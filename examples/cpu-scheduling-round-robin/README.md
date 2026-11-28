@@ -54,8 +54,8 @@ Build these in Ubuntu. Run them there, on any of the three hosts:
 | macOS | The Ubuntu 24.04 Server virtual machine from `b1` Part 4, run under UTM |
 | Linux | Your own kernel |
 
-The programs are POSIX C. They build on native macOS, but the course documents
-one host per platform, so use the Ubuntu guest.
+The programs are POSIX C. They also build on native macOS. Build and run them
+on the Ubuntu guest in the table above.
 
 ## The Model
 

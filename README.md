@@ -32,8 +32,8 @@ You may change only these files and folders:
 - The Pair section of `README.md`
 - `student-cases/`, which holds the one case of your own
 
-Everything else is fixed. `include/ps1.h`, `src/main.c`, `src/clock.c`, and
-`src/trace.c` are given to you complete. `cases/`, `tools/check_cases.py`, and
+Everything else is fixed. The starter gives you `include/ps1.h`, `src/main.c`,
+`src/clock.c`, and `src/trace.c` complete. `cases/`, `tools/check_cases.py`, and
 the workflow are the grading corpus and its runner. The manual states every
 rule these files follow.
 

@@ -4,7 +4,7 @@
  * It reads the command line, loads the workload, runs the controller, prints
  * the report, and maps the result onto the exit codes the manual states.
  *
- *   0    every worker finished and every reference was released
+ *   0    every worker finished and was reaped
  *   65   the command line or the workload file was refused
  *   70   a worker failed, a system call did, or the worker image could not start
  *   130  SIGINT ended the run

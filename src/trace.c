@@ -6,12 +6,15 @@
  * worker has completed, and the CLOCK_MONOTONIC seconds of the call. The
  * controller writes the file's header when it releases the worker.
  *
- *   # ps1 trace: worker A arrival 0 burst 10 time 0.000412
- *   dispatch 0 0 0.000500
- *   preempt 5 5 0.010233
- *   stopped 6 6 0.010489
- *   dispatch 6 6 0.010551
- *   complete 20 10 0.031221
+ *   # ps1 trace: worker A arrival 0 burst 10 time 686.880307
+ *   dispatch 0 0 686.880360
+ *   preempt 4 4 686.880584
+ *   stopped 4 4 686.880609
+ *   dispatch 8 4 686.880965
+ *   preempt 12 8 686.881108
+ *   stopped 13 9 686.881131
+ *   dispatch 16 9 686.881359
+ *   complete 17 10 686.881492
  *
  * The writer is called by the controller and never by a worker, so one process
  * owns every file and no two lines interleave.

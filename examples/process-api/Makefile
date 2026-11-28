@@ -10,7 +10,7 @@
 # check, then a count of the examples. It exits 0 only when every check passes.
 #
 # The buffering check needs `script` from util-linux, because it runs that
-# example once on a terminal and once with the output redirected.
+# example once on a terminal and twice with the output redirected.
 
 CC     := cc
 CFLAGS := -std=c11 -Wall -Wextra -Werror -D_POSIX_C_SOURCE=200809L

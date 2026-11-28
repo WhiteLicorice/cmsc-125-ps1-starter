@@ -66,8 +66,8 @@ syscall write returned 25
 ```
 
 The two `write` calls are unbuffered. They reach the output first. The two
-`printf` lines are buffered. They flush at exit. This order holds for a terminal
-and for a pipe.
+`printf` lines are buffered. On a terminal each line flushes at its newline. On
+a pipe or a file the lines wait in the buffer until exit.
 
 `syscall(2)` is a Linux interface. POSIX doesn't define it. The file defines
 `_DEFAULT_SOURCE` to expose the call under the build above.

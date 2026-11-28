@@ -1,6 +1,6 @@
 # Keep every file in this folder LF on every platform.
 #
-# The examples build inside Ubuntu under Windows Subsystem for Linux. This
-# repository has core.autocrlf on, so a Windows checkout would write CRLF into
-# a Makefile. Make then reads a carriage return as part of the recipe.
+# Make reads a carriage return as part of a recipe. The expected output is
+# compared byte for byte with a program that writes LF. Pin LF so both match on
+# every host.
 * text eol=lf
