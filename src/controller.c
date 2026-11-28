@@ -32,7 +32,7 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
 
     /* TODO: Create one control pipe for each worker.
        The worker reads its release bytes from descriptor 0.
-       See "The Release Barrier" in the manual. */
+       See "The Progress Pipe" in the manual. */
 
     /* TODO: Fork every worker before the first dispatch.
        In the child, close the other workers' progress and control
@@ -49,7 +49,7 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
        No tick runs before the controller releases the worker. A byte written
        before the worker's read stays in the pipe, so the release is never
        lost.
-       See "The Release Barrier" in the manual. */
+       See "Stopping and Continuing" in the manual. */
 
     /* TODO: Release every worker whose arrival tick the clock has reached.
        Record its arrival time.

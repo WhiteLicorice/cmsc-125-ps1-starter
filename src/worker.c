@@ -27,7 +27,7 @@ void ps1_worker_main(const ps1_workload *wl, size_t index)
        Descriptor 0 is the control pipe. Read with read, and retry when a
        signal interrupts it. No tick runs before the controller releases the
        worker.
-       See "The Release Barrier" in the manual. */
+       See "Stopping and Continuing" in the manual. */
 
     /* TODO: At each tick boundary, if the stop flag is set, write the stop
        byte PS1_STOP_BYTE and wait for the next release byte.
