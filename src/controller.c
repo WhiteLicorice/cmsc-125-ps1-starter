@@ -51,7 +51,7 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
        lost.
        See "Stopping and Continuing" in the manual. */
 
-    /* TODO: Release every worker whose arrival tick the clock has reached.
+    /* TODO: Admit every worker whose arrival tick the clock has reached.
        Record its arrival time.
        Write its trace header.
        See "Its Loop" in the manual. */
@@ -67,7 +67,7 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
        Treat the byte as one finished tick on the work clock.
        See "Its Loop" in the manual. */
 
-    /* TODO: Release an arrival at the new clock before you preempt the runner.
+    /* TODO: Admit an arrival at the new clock before you preempt the runner.
        The arriving worker then stands ahead of the one the preemption picks.
        See "Its Loop" in the manual. */
 
@@ -97,14 +97,14 @@ ps1_status ps1_controller_run(const ps1_workload *wl, const ps1_options *opts,
        cases/arrival/rr_with_arrival.work
        See "Stopping and Continuing" in the manual. */
 
-    /* TODO: Release every arrival the overrun reached.
+    /* TODO: Admit every arrival the overrun reached.
        Do this before you requeue the preempted worker.
        cases/arrival/rr_arrival_joins_tail.work
        See "Round Robin" in the manual. */
 
     /* TODO: Handle completion when the worker's total done count reaches its burst.
-       Release the worker if it holds the barrier, then wait for its exit.
-       Write the complete event.
+       Wait for the worker's exit, then record the complete event.
+       A worker that leaves at the end of its burst writes no stop byte.
        Write the stopped event only for a worker still stopped with work left.
        Treat a worker that leaves short of its burst as a fault.
        See "Stopping and Continuing" in the manual. */
