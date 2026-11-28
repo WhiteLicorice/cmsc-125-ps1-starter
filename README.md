@@ -81,15 +81,15 @@ Collaboration.
 | Code | Meaning |
 |---|---|
 | 0 | Every worker ran every tick of its burst and exited with status 0. |
-| 65 | The command line or the workload file was refused. |
-| 70 | A worker failed, a system call did, the worker image could not start, or the report could not be written. |
+| 65 | The program refused the command line or the workload file. |
+| 70 | A worker failed, a system call did, the worker image could not start, or the program could not write the report. |
 | 130 | `SIGINT` ended the run. The report is partial. |
 
 ## The First Run
 
 A fresh clone builds without warnings. It passes 8 of the 57 cases and exits 1. The same run reports no passing invariant
 check. The failed-fork check gives the cause: `workload.c` isn't
-implemented, so the run fails at exit 65 before any fork is refused. A check
+implemented, so the run fails at exit 65 before any fork attempt. A check
 reports a skip instead in two cases. With no load line it skips, whatever the
 exit code, because nothing could interpose a `fork`. With a load line and exit 0
 it skips too, since it can't test failure handling.
