@@ -46,6 +46,21 @@ def last_line(text):
     return lines[-1] if lines else "no output"
 
 
+def first_failure(text):
+    """Returns the first failing case line and its detail, or the last line."""
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        if line.startswith("[FAIL]"):
+            detail = [line.strip()]
+            for extra in lines[index + 1:index + 5]:
+                if extra.startswith("       ") and extra.strip():
+                    detail.append(extra.strip())
+                else:
+                    break
+            return " ".join(detail)
+    return last_line(text)
+
+
 def check_separate_run_survives():
     """A process from a separate run, named for the program, keeps running."""
     scratch = Path(tempfile.mkdtemp(prefix="ps1-parallel-"))
@@ -88,7 +103,8 @@ def check_two_runs_agree():
 
     if first.returncode != second.returncode:
         return (f"the two runs exited differently: {first.returncode} and "
-                f"{second.returncode}. Second run: {last_line(second_output)}")
+                f"{second.returncode}. First run: {first_failure(first_output)}. "
+                f"Second run: {first_failure(second_output)}.")
     if last_line(first_output) != last_line(second_output):
         return (f"the two runs reported differently: "
                 f"'{last_line(first_output)}' and "
