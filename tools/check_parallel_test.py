@@ -65,7 +65,10 @@ def check_separate_run_survives():
     """A process from a separate run, named for the program, keeps running."""
     scratch = Path(tempfile.mkdtemp(prefix="ps1-parallel-"))
     sentinel = scratch / "cmsc-125-ps1"
-    sentinel.write_text("#!/bin/sh\nsleep 30\n", encoding="utf-8")
+    # The checker may spend 30 seconds on one hung case and more on the rest.
+    # The sentinel must outlive RUN_SECONDS, or its own exit would look like a
+    # kill by the checker.
+    sentinel.write_text("#!/bin/sh\nsleep 600\n", encoding="utf-8")
     sentinel.chmod(0o755)
     process = subprocess.Popen([str(sentinel)], start_new_session=True)
     try:
