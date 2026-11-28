@@ -74,7 +74,7 @@ The simulator implements the model below. Every case uses it.
 - A boost moves every unfinished job to Q1. The boost period is 8 ms in the
   `boost-on` case. A job that arrives in the same millisecond as a boost enters
   Q1 before the boost. The job that was running joins the head of its own queue
-  before the merge, so it stays ahead of the other jobs at its level. The queues
+  before the merge. It stays ahead of the other jobs at its level. The queues
   merge in the order Q1, then Q2, then Q3. Each queue keeps its own order. Every
   boosted job starts a fresh slice and a fresh allotment.
 - Switching costs no time. A millisecond with no ready job is idle.
@@ -174,7 +174,7 @@ average                    15.00      0.50
 ```
 
 The yielding job spends its 4 ms at Q1, so the settled rule demotes it to Q2
-at 8 ms and then to Q3 at 16 ms. The other job now finishes at 6 ms instead of
+at 8 ms. It reaches Q3 at 16 ms. The other job now finishes at 6 ms instead of
 24 ms.
 
 ### `boost-off`
