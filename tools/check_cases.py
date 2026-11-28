@@ -742,14 +742,17 @@ def running_processes(pgid):
 
     The group holds only the controller and workers this case started. A
     separate run, in another checkout or another terminal, has its own group
-    and stays out of this check.
+    and stays out of this check. macOS ps can exit nonzero after it writes a
+    complete table, because a process left during the scan. The table is still
+    usable, so a nonzero status alone does not fail the check. A scan with no
+    output is unusable.
     """
     try:
         result = subprocess.run(["ps", "-A", "-o", "pgid=,comm="], capture_output=True,
                                 text=True, timeout=10)
     except (OSError, subprocess.SubprocessError):
         return None
-    if result.returncode != 0:
+    if not result.stdout.strip():
         return None
     found = []
     for line in result.stdout.splitlines():
