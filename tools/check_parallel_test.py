@@ -15,7 +15,9 @@ Run it from the starter root after `make`:
 
     python3 tools/check_parallel_test.py
 """
+import os
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -70,7 +72,12 @@ def check_separate_run_survives():
     # kill by the checker.
     sentinel.write_text("#!/bin/sh\nsleep 600\n", encoding="utf-8")
     sentinel.chmod(0o755)
-    process = subprocess.Popen([str(sentinel)], start_new_session=True)
+    # The sentinel gets no share of this process's output, or its sleep child
+    # would hold the caller's pipe open after the check ends.
+    process = subprocess.Popen([str(sentinel)], start_new_session=True,
+                               stdin=subprocess.DEVNULL,
+                               stdout=subprocess.DEVNULL,
+                               stderr=subprocess.DEVNULL)
     try:
         time.sleep(0.2)
         if process.poll() is not None:
@@ -85,7 +92,12 @@ def check_separate_run_survives():
         return ""
     finally:
         if process.poll() is None:
-            process.kill()
+            # The sentinel is a shell with a sleep child. Kill the whole group,
+            # or the sleep outlives the shell.
+            try:
+                os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+            except OSError:
+                pass
             process.wait(timeout=10)
         shutil.rmtree(scratch, ignore_errors=True)
 
