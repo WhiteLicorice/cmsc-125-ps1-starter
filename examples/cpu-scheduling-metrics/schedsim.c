@@ -8,7 +8,7 @@
  * prints the schedule, a Gantt row, and the per-job metrics. The model is
  * fixed. README.md in this folder states it.
  *
- * The student-facing build links demo_cases.c:
+ * The build links demo_cases.c:
  *   cc -std=c11 -Wall -Wextra -Werror -o schedsim schedsim.c demo_cases.c
  *
  * Run one case:

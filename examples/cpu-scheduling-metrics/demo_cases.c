@@ -1,7 +1,7 @@
 /*
  * demo_cases.c
  *
- * The student-facing case list for the CPU-scheduling simulator. Every case
+ * The case list for the CPU-scheduling simulator. Every case
  * here appears in the worked examples.
  *
  * See README.md in this folder for the model and the case table.

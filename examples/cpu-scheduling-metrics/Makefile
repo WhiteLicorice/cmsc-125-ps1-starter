@@ -1,9 +1,9 @@
 # Build and check the "CPU Scheduling and Multilevel Feedback Queues" simulator.
 #
-# schedsim.c holds the model and the printer. demo_cases.c holds the
-# student-facing cases. Each case prints one schedule and its metrics. make
-# check compares the output of every case with the recorded output in
-# expected/. This folder holds only the cases the students see.
+# schedsim.c holds the model and the printer. demo_cases.c holds the cases.
+# Each case prints one schedule and its metrics. make check compares the output
+# of every case with the recorded output in expected/. This folder holds only
+# the worked-example cases.
 
 CC       ?= cc
 CFLAGS   := -std=c11 -Wall -Wextra -Werror
